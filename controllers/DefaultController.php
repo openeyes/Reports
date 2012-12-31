@@ -299,7 +299,7 @@ class DefaultController extends BaseController {
 				$obj->title = "Overall";
 			}
 
-			$obj->subtitle = '%';
+			$obj->subtitle = $c->value_raw.' / '.$c->value_total;
 			$obj->ranges = array($range);
 			$obj->measures = array($c->value_percent);
 			$obj->markers = array($c->value_percent);
@@ -330,7 +330,7 @@ class DefaultController extends BaseController {
 			foreach (StatsComplicationSurgeon::model()->findAll('surgeon_id=? and value_total >0',array($_GET['surgeon_id'])) as $c) {
 				$obj = new stdClass;
 				$obj->title = $c->complication ? $c->complication->name : 'Overall';
-				$obj->subtitle = '%';
+				$obj->subtitle = $c->value_raw.' / '.$c->value_total;
 				$obj->ranges = array($range);
 				$obj->measures = array((float)$institution_values[$c->complication_id],(float)$c->value_percent);
 				$obj->markers = array($c->value_percent);
@@ -348,7 +348,7 @@ class DefaultController extends BaseController {
 				if ($i >= $offset && count($json) < $this->items_per_page) {
 					$obj = new stdClass;
 					$obj->title = $c->surgeon->first_name.' '.$c->surgeon->last_name;
-					$obj->subtitle = '%';
+					$obj->subtitle = $c->value_raw.' / '.$c->value_total;
 					$obj->ranges = array($range);
 					$obj->measures = array((float)$c->value_percent,(float)$institution_rate);
 					$obj->markers = array($c->value_percent);
@@ -377,7 +377,7 @@ class DefaultController extends BaseController {
 			foreach (StatsComplicationSite::model()->findAll('event_type_id=? and element_type_id=? and site_id=? and value_total >0',array($opnote->id,$cataract->id,$_GET['site_id'])) as $c) {
 				$obj = new stdClass;
 				$obj->title = ($c->complication ? $c->complication->name : 'Overall');
-				$obj->subtitle = $c->value_percent;
+				$obj->subtitle = $c->value_raw.' / '.$c->value_total;
 				$obj->ranges = array($range);
 				$obj->measures = array((float)$c->value_percent,(float)$institution_rates[$c->complication_id]);
 				$obj->markers = array($c->value_percent);
@@ -391,7 +391,7 @@ class DefaultController extends BaseController {
 			foreach (StatsComplicationSite::model()->findAll('event_type_id=? and element_type_id=? and complication_id is null and value_total >0',array($opnote->id,$cataract->id)) as $c) {
 				$obj = new stdClass;
 				$obj->title = $c->site->name;
-				$obj->subtitle = $c->value_percent;
+				$obj->subtitle = $c->value_raw.' / '.$c->value_total;
 				$obj->ranges = array($range);
 				$obj->measures = array($c->value_percent,(float)$institution_rate);
 				$obj->markers = array($c->value_percent);

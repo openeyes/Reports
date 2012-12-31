@@ -425,6 +425,14 @@ d3.chart.bullet = function() {
 					.attr("x", '2em')
 					.text(markertext_text);
 
+			// Update the subtitles
+			var subtitles = g.selectAll("text.subtitle").data(d["subtitle"]);
+
+			subtitles.transition()
+				.duration(duration)
+				.attr("dy","1em")
+				.text(d["subtitle"]);
+
 			// Compute the tick format.
 			var format = tickFormat || x1.tickFormat(8);
 
