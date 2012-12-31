@@ -1,0 +1,20 @@
+.reportsMenu { width: 200px; margin-left: auto; margin-right: auto; margin-top: 50px; }
+.reportsMenuItem { height: 26px; }
+div.reportsMenuItem a { font-size: 16px; }
+.reportsPagination { width: 1042px; margin-left: auto; margin-right: auto; }
+.reportsPagination span { margin-right: 10px; }
+.reportsPagination a { margin-right: 10px; }
+.ReportGraph { margin-top: 20px; width: 1042px; margin-left: auto; margin-right: auto; }
+.bullet { font: 10px sans-serif; }
+.bullet .marker { stroke: #000; stroke-width: 2px; }
+.bullet .markertext { float: left; font-weight: bold; }
+.bullet .tick line { stroke: #666; stroke-width: .5px; }
+.bullet .range.s0 { fill: #eee; }
+.bullet .range.s1 { fill: #ddd; }
+.bullet .range.s2 { fill: #ccc; }
+.bullet .measure.s0 { fill: lightsteelblue; }
+.bullet .measure.s1 { fill: steelblue; }
+.bullet .title { font-size: 14px; font-weight: bold; }
+.bullet .subtitle { fill: #999; }
+.reportsMenu { margin-left: auto; margin-right: auto; width: 300px; }
+.reportsMenuItem { width: 50px; display: inline-block; }
