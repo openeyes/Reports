@@ -27,7 +27,7 @@ class DefaultController extends BaseController {
 	}
 
 	public function actionCataract_complications() {
-		$this->render('index',array('graphs'=>$this->stubData($this->cataractComplicationGraphs,array(
+		$this->render('cataract_complications',array('graphs'=>$this->stubData($this->cataractComplicationGraphs,array(
 			'subtitle' => '%',
 			'ranges' => array(100),
 			'measures' => array(0),
@@ -36,29 +36,42 @@ class DefaultController extends BaseController {
 	}
 
 	public function actionCataract_complications_by_site() {
-		preg_match('/([0-9]+)$/',$_SERVER['REQUEST_URI'],$m) and $this->page = $m[1];
+		preg_match('/([0-9]+)$/',$_SERVER['REQUEST_URI'],$m) and $site_id = $m[1];
 
 		$this->uri = '/Reports/default/'.preg_replace('/^action/','',__FUNCTION__);
 
-		$this->render('index',array('graphs'=>$this->stubData($this->siteGraphs,array(
-			'subtitle' => '%',
-			'ranges' => array(100),
-			'measures' => array(0),
-			'markers' => array(100),
-		),true)));
+		$this->render('cataract_complications',array(
+			'graphs' => $this->stubData($this->getSiteGraphs(@$site_id),array(
+				'subtitle' => '%',
+				'ranges' => array(100),
+				'measures' => array(0),
+				'markers' => array(100),
+			),true),
+			'site_id' => @$site_id,
+			'site_ids' => $this->siteIDs,
+		));
 	}
 
 	public function actionCataract_complications_by_surgeon() {
-		preg_match('/([0-9]+)$/',$_SERVER['REQUEST_URI'],$m) and $this->page = $m[1];
+		if (preg_match('/([0-9]+)\/([0-9]+)$/',$_SERVER['REQUEST_URI'],$m)) {
+			$this->page = $m[1];
+			$surgeon_id = $m[2];
+		} else if (preg_match('/([0-9]+)$/',$_SERVER['REQUEST_URI'],$m)) {
+			$this->page = $m[1];
+		}
 
 		$this->uri = '/Reports/default/'.preg_replace('/^action/','',__FUNCTION__);
 
-		$this->render('index',array('graphs'=>$this->stubData($this->surgeonGraphs,array(
-			'subtitle' => '%',
-			'ranges' => array(100),
-			'measures' => array(0),
-			'markers' => array(100),
-		),true)));
+		$this->render('cataract_complications',array(
+			'graphs'=>$this->stubData($this->getSurgeonGraphs(@$surgeon_id),array(
+				'subtitle' => '%',
+				'ranges' => array(100),
+				'measures' => array(0),
+				'markers' => array(100),
+			),true),
+			'surgeon_id' => @$surgeon_id,
+			'surgeon_ids' => $this->surgeonIDs,
+		));
 	}
 
 	public function getHomeGraphs() {
@@ -100,7 +113,7 @@ class DefaultController extends BaseController {
 		return $graphs;
 	}
 
-	public function getSiteGraphs() {
+	public function getSiteGraphs($site_id=null) {
 		$graphs = array(
 			'Sites' => array(
 				'uri' => "/Reports/default/siteStats?page=".$this->page,
@@ -108,14 +121,34 @@ class DefaultController extends BaseController {
 			),
 		);
 
-		foreach (StatsComplicationSite::model()->findAll('complication_id is null and value_total >0') as $s) {
-			$graphs['Sites']['properties'][] = $s->site->name;
+		if ($site_id == null) {
+			foreach (StatsComplicationSite::model()->findAll('complication_id is null and value_total >0') as $s) {
+				$graphs['Sites']['properties'][] = $s->site->name;
+			}
+		} else {
+			$graphs['Sites']['uri'] .= "&site_id=$site_id";
+
+			foreach (StatsComplicationSite::model()->findAll('site_id=? and value_total >0',array($site_id)) as $s) {
+				if ($s->complication) {
+					$graphs['Sites']['properties'][] = $s->complication->name;
+				} else {
+					$graphs['Sites']['properties'][] = 'Overall';
+				}
+			}
 		}
 
 		return $graphs;
 	}
 
-	public function getSurgeonGraphs() {
+	public function getSiteIDs() {
+		$site_ids = array();
+		foreach (StatsComplicationSite::model()->findAll('complication_id is null and value_total >0') as $s) {
+			$site_ids[$s->site->name] = $s->site_id;
+		}
+		return $site_ids;
+	}
+
+	public function getSurgeonGraphs($surgeon_id=null) {
 		$graphs = array(
 			'Surgeons' => array(
 				'uri' => "/Reports/default/surgeonStats?page=".$this->page,
@@ -123,17 +156,33 @@ class DefaultController extends BaseController {
 			),
 		);
 
-		$offset = ($this->page-1) * $this->items_per_page;
+		if ($surgeon_id == null) {
+			$offset = ($this->page-1) * $this->items_per_page;
 
-		foreach (StatsComplicationSurgeon::model()->findAll('complication_id is null and value_total >0') as $i => $s) {
-			if ($i >= $offset && count($graphs['Surgeons']['properties']) <$this->items_per_page) {
-				$graphs['Surgeons']['properties'][] = $s->surgeon->first_name.' '.$s->surgeon->last_name;
+			foreach (StatsComplicationSurgeon::model()->findAll('complication_id is null and value_total >0') as $i => $s) {
+				if ($i >= $offset && count($graphs['Surgeons']['properties']) <$this->items_per_page) {
+					$graphs['Surgeons']['properties'][] = $s->surgeon->first_name.' '.$s->surgeon->last_name;
+				}
+			}
+
+			$this->pages = ceil(($i+1)/$this->items_per_page);
+		} else {
+			$graphs['Surgeons']['uri'] .= "&surgeon_id=".$surgeon_id;
+
+			foreach (StatsComplicationSurgeon::model()->findAll('surgeon_id = ? and value_total >0',array($surgeon_id)) as $s) {
+				$graphs['Surgeons']['properties'][] = ($s->complication ? $s->complication->name : 'Overall');
 			}
 		}
 
-		$this->pages = ceil(($i+1)/$this->items_per_page);
-
 		return $graphs;
+	}
+
+	public function getSurgeonIDs() {
+		$surgeon_ids = array();
+		foreach (StatsComplicationSurgeon::model()->findAll('complication_id is null and value_total >0') as $s) {
+			$surgeon_ids[$s->surgeon->first_name.' '.$s->surgeon->last_name] = $s->surgeon_id;
+		}
+		return $surgeon_ids;
 	}
 
 	public function stubData($graphdata, $params, $percentage=false) {
@@ -266,20 +315,45 @@ class DefaultController extends BaseController {
 		$opnote = EventType::model()->find('class_name=?',array('OphTrOperationnote'));
 		$cataract = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementCataract'));
 
-		$page = $_GET['page'];
-		$offset = ($page-1) * $this->items_per_page;
+		if (ctype_digit(@$_GET['surgeon_id'])) {
+			$range = ceil(Yii::app()->db->createCommand()->select("max(value_percent)")->from("stats_complication_surgeon")->where("event_type_id=? and element_type_id=? and surgeon_id=?",array($opnote->id,$cataract->id,$_GET['surgeon_id']))->queryScalar());
 
-		$range = ceil(Yii::app()->db->createCommand()->select("max(value_percent)")->from("stats_complication_surgeon")->where("event_type_id=? and element_type_id=? and complication_id is null",array($opnote->id,$cataract->id))->queryScalar());
+			// get institution values for comparison
+			$institution_values = array();
+			foreach (StatsComplication::model()->findAll('value_total >0') as $c) {
+				$institution_values[$c->complication_id] = $c->value_percent;
+				if ($c->value_percent > $range) {
+					$range = ceil($c->value_percent);
+				}
+			}
 
-		foreach (StatsComplicationSurgeon::model()->findAll('complication_id is null and value_total >0') as $i => $c) {
-			if ($i >= $offset && count($json) < $this->items_per_page) {
+			foreach (StatsComplicationSurgeon::model()->findAll('surgeon_id=? and value_total >0',array($_GET['surgeon_id'])) as $c) {
 				$obj = new stdClass;
-				$obj->title = $c->surgeon->first_name.' '.$c->surgeon->last_name;
+				$obj->title = $c->complication ? $c->complication->name : 'Overall';
 				$obj->subtitle = '%';
 				$obj->ranges = array($range);
-				$obj->measures = array($c->value_percent);
+				$obj->measures = array((float)$institution_values[$c->complication_id],(float)$c->value_percent);
 				$obj->markers = array($c->value_percent);
 				$json[] = $obj;
+			}
+		} else {
+			$page = $_GET['page'];
+			$offset = ($page-1) * $this->items_per_page;
+
+			$range = ceil(Yii::app()->db->createCommand()->select("max(value_percent)")->from("stats_complication_surgeon")->where("event_type_id=? and element_type_id=? and complication_id is null",array($opnote->id,$cataract->id))->queryScalar());
+
+			$institution_rate = StatsComplication::model()->find('event_type_id=? and element_type_id=? and complication_id is null',array($opnote->id,$cataract->id))->value_percent;
+
+			foreach (StatsComplicationSurgeon::model()->findAll('complication_id is null and value_total >0') as $i => $c) {
+				if ($i >= $offset && count($json) < $this->items_per_page) {
+					$obj = new stdClass;
+					$obj->title = $c->surgeon->first_name.' '.$c->surgeon->last_name;
+					$obj->subtitle = '%';
+					$obj->ranges = array($range);
+					$obj->measures = array((float)$c->value_percent,(float)$institution_rate);
+					$obj->markers = array($c->value_percent);
+					$json[] = $obj;
+				}
 			}
 		}
 
@@ -292,54 +366,41 @@ class DefaultController extends BaseController {
 		$opnote = EventType::model()->find('class_name=?',array('OphTrOperationnote'));
 		$cataract = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementCataract'));
 
-		$range = ceil(Yii::app()->db->createCommand()->select("max(value_percent)")->from("stats_complication_site")->where("event_type_id=? and element_type_id=? and complication_id is null",array($opnote->id,$cataract->id))->queryScalar());
+		if (ctype_digit(@$_GET['site_id'])) {
+			$range = ceil(Yii::app()->db->createCommand()->select("max(value_percent)")->from("stats_complication_site")->where("event_type_id=? and element_type_id=? and site_id=?",array($opnote->id,$cataract->id,$_GET['site_id']))->queryScalar());
 
-		foreach (StatsComplicationSite::model()->findAll('complication_id is null and value_total >0') as $c) {
-			$obj = new stdClass;
-			$obj->title = $c->site->name;
-			$obj->subtitle = '%';
-			$obj->ranges = array($range);
-			$obj->measures = array($c->value_percent);
-			$obj->markers = array($c->value_percent);
-			$json[] = $obj;
-		}
-
-		echo json_encode($json);
-	}
-
-/*
-	public function actionInstitutionsData() {
-		$data = $this->stats();
-
-		$json = array();
-
-		$max = 0;
-		foreach ($data as $key => $value) {
-			if (!is_array($value) && $value > $max) {
-				$max = $value;
+			$institution_rates = array();
+			foreach (StatsComplication::model()->findAll('event_type_id=? and element_type_id=? and value_total >0',array($opnote->id,$cataract->id)) as $c) {
+				$institution_rates[$c->complication_id] = $c->value_percent;
 			}
-		}
 
-		$round = round($max, -3);
-		if ($round > $max) {
-			$round += 1000;
-		}
-
-		foreach ($data as $key => $value) {
-			if (!is_array($value)) {
+			foreach (StatsComplicationSite::model()->findAll('event_type_id=? and element_type_id=? and site_id=? and value_total >0',array($opnote->id,$cataract->id,$_GET['site_id'])) as $c) {
 				$obj = new stdClass;
-				$obj->title = $key;
-				$obj->subtitle = 'number of';
-				$obj->ranges = array($round);
-				$obj->measures = array($value);
-				$obj->markers = array($round);
+				$obj->title = ($c->complication ? $c->complication->name : 'Overall');
+				$obj->subtitle = $c->value_percent;
+				$obj->ranges = array($range);
+				$obj->measures = array((float)$c->value_percent,(float)$institution_rates[$c->complication_id]);
+				$obj->markers = array($c->value_percent);
+				$json[] = $obj;
+			}
+		} else {
+			$range = ceil(Yii::app()->db->createCommand()->select("max(value_percent)")->from("stats_complication_site")->where("event_type_id=? and element_type_id=? and complication_id is null",array($opnote->id,$cataract->id))->queryScalar());
+
+			$institution_rate = StatsComplication::model()->find('event_type_id=? and element_type_id=? and complication_id is null',array($opnote->id,$cataract->id))->value_percent;
+
+			foreach (StatsComplicationSite::model()->findAll('event_type_id=? and element_type_id=? and complication_id is null and value_total >0',array($opnote->id,$cataract->id)) as $c) {
+				$obj = new stdClass;
+				$obj->title = $c->site->name;
+				$obj->subtitle = $c->value_percent;
+				$obj->ranges = array($range);
+				$obj->measures = array($c->value_percent,(float)$institution_rate);
+				$obj->markers = array($c->value_percent);
 				$json[] = $obj;
 			}
 		}
 
 		echo json_encode($json);
 	}
-*/
 
 	public function actionView() {
 		$this->renderPartial('view',array('data' => $this->stats()));

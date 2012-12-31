@@ -1,10 +1,10 @@
-.reportsMenu { width: 200px; margin-left: auto; margin-right: auto; margin-top: 50px; }
-.reportsMenuItem { height: 26px; }
+#reportsMenu { width: 204px; margin-left: auto; margin-right: auto; margin-top: 20px; }
+.reportsMenuItem { height: 16px; }
 div.reportsMenuItem a { font-size: 16px; }
-.reportsPagination { width: 1042px; margin-left: auto; margin-right: auto; }
+.reportsPagination { margin-right: 71px; float: right; }
 .reportsPagination span { margin-right: 10px; }
 .reportsPagination a { margin-right: 10px; }
-.ReportGraph { margin-top: 20px; width: 1042px; margin-left: auto; margin-right: auto; }
+.ReportGraph { margin-top: 20px; width: 1068px; margin-left: auto; margin-right: auto; }
 .bullet { font: 10px sans-serif; }
 .bullet .marker { stroke: #000; stroke-width: 2px; }
 .bullet .markertext { float: left; font-weight: bold; }
@@ -18,3 +18,15 @@ div.reportsMenuItem a { font-size: 16px; }
 .bullet .subtitle { fill: #999; }
 .reportsMenu { margin-left: auto; margin-right: auto; width: 300px; }
 .reportsMenuItem { width: 50px; display: inline-block; }
+
+a:hover { text-decoration: none !important; }
+
+.graphTabs { width: 1068px; margin-left: auto; margin-right: auto; margin-bottom: -16px; }
+.graphTabs a { color: #000; }
+
+.graphTab { background-color: #aaa; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; padding: 8px; margin-right: 3px; font-size: 15px; }
+.graphTab.active { background-color: #fafafa; }
+
+.selectionTabs { margin-left: 500px; display: inline-block; margin-right: auto; margin-bottom: -16px; background-color: #fafafa; -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; padding: 8px; margin-right: 3px; font-size: 15px; float: right; margin-right: 78px; margin-top: -8px; }
+
+text.title:hover { fill: #00f; cursor: hand; cursor: pointer; }
