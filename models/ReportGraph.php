@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report".
+ * This is the model class for table "report_graph".
  *
- * The followings are the available columns in table 'report':
+ * The followings are the available columns in table 'report_graph':
  * @property integer $id
  * @property string $name
  *
  */
-class Report extends BaseActiveRecord
+class ReportGraph extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return Report the static model class
+	 * @return ReportGraph the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class Report extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report';
+		return 'report_graph';
 	}
 
 	/**
@@ -67,10 +67,8 @@ class Report extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'inputs' => array(self::HAS_MANY, 'ReportInput', 'report_id', 'order' => 'display_order'),
-			'items' => array(self::HAS_MANY, 'ReportItem', 'report_id', 'order' => 'display_order'),
-			'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspecialty_id'),
-			'graphs' => array(self::HAS_MANY, 'ReportGraph', 'report_id', 'order' => 'display_order'),
+			'report' => array(self::BELONGS_TO, 'Report', 'report_id'),
+			'items' => array(self::HAS_MANY, 'ReportGraphItem', 'graph_id', 'order' => 'display_order'),
 		);
 	}
 
@@ -102,25 +100,54 @@ class Report extends BaseActiveRecord
 		));
 	}
 
-	public static function subspecialties() {
-		$subspecialties = array();
+	public function getValue() {
+		switch ($this->type->name) {
+			case 'audit':
+				$where = "action = '$this->property'";
+				if ($this->date_from) {
+					$where .= " and created_date >= '$this->date_from'";
+				}
+				if ($this->date_to) {
+					$where .= " and created_date >= '$this->date_to'";
+				}
 
-		foreach (Yii::app()->db->createCommand()
-			->select("distinct(subspecialty.id), subspecialty.name")
-			->from("subspecialty")
-			->join("report","report.subspecialty_id = subspecialty.id")
-			->order("subspecialty.name asc")
-			->queryAll() as $subspecialty) {
-			$subspecialties[$subspecialty['id']] = $subspecialty['name'];
+				return (int)Yii::app()->db->createCommand()
+					->select($this->distinct ? "count(distinct ucase(data))" : "count(*)")
+					->from("audit")
+					->where($where)
+					->queryScalar();
+				break;
 		}
 
-		return $subspecialties;
+		throw new Exception("Unhandled report input type: {$this->type->name}");
 	}
 
-	public function execute($data) {
-		Yii::import('application.modules.'.$this->module.'.controllers.*');
+	public function getDefaultValue() {
+		if ($this->dataType->name == 'date') {
+			if ($this->default_value == 'now') {
+				return date('j M Y');
+			} else if ($this->default_value) {
+				return date('j M Y',strtotime($this->default_value));
+			}
+			return '';
+		}
 
-		$report = new ReportController;
-		return $report->{$this->data_method}($data);
+		return $this->default_value;
+	}
+
+	public function getInitialData($data) {
+		$objects = array();
+
+		foreach ($this->items as $item) {
+			$object = new stdClass;
+			$object->title = $item->name;
+			$object->subtitle = $item->subtitle;
+			$object->ranges = array((int)$item->range);
+			$object->measures = array($data[$item->item->data_field]['percentage']);
+			$object->markers = array($data[$item->item->data_field]['percentage']);
+			$objects[] = $object;
+		}
+
+		return $objects;
 	}
 }

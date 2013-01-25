@@ -132,10 +132,60 @@ class m130124_083001_reports_table extends CDbMigration
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>2,'name'=>'Final visual acuity','data_field'=>'final_visual_acuity','subtitle'=>'Final visual acuity','display_order'=>4));
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'PC ruptures','data_field'=>'pc_ruptures','subtitle'=>'Total PC ruptures','display_order'=>5));
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Complications','data_field'=>'complications','subtitle'=>'Total complications','display_order'=>6));
+
+		$this->createTable('report_graph',array(
+				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
+				'report_id' => 'int(10) unsigned NOT NULL',
+				'name' => 'varchar(64) COLLATE utf8_bin NOT NULL',
+				'display_order' => 'int(10) unsigned NOT NULL DEFAULT 0',
+				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'PRIMARY KEY (`id`)',
+				'KEY `report_graph_last_modified_user_id_fk` (`last_modified_user_id`)',
+				'KEY `report_graph_created_user_id_fk` (`created_user_id`)',
+				'KEY `report_graph_report_id_fk` (`report_id`)',
+				'CONSTRAINT `report_graph_created_user_id_fk` FOREIGN KEY (`created_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_graph_last_modified_user_id_fk` FOREIGN KEY (`last_modified_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_graph_report_id_fk` FOREIGN KEY (`report_id`) REFERENCES `report` (`id`)',
+			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
+		);
+
+		$this->insert('report_graph',array('report_id'=>1,'name'=>'Cataract complication rate','display_order'=>1));
+
+		$this->createTable('report_graph_item',array(
+				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
+				'graph_id' => 'int(10) unsigned NOT NULL',
+				'report_item_id' => 'int(10) unsigned NOT NULL',
+				'name' => 'varchar(64) COLLATE utf8_bin NOT NULL',
+				'subtitle' => 'varchar(64) COLLATE utf8_bin NOT NULL',
+				'range' => 'float NOT NULL',
+				'display_order' => 'int(10) unsigned NOT NULL DEFAULT 0',
+				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'PRIMARY KEY (`id`)',
+				'KEY `report_graph_item_last_modified_user_id_fk` (`last_modified_user_id`)',
+				'KEY `report_graph_item_created_user_id_fk` (`created_user_id`)',
+				'KEY `report_graph_item_graph_id_fk` (`graph_id`)',
+				'KEY `report_graph_item_report_item_id_fk` (`report_item_id`)',
+				'CONSTRAINT `report_graph_item_created_user_id_fk` FOREIGN KEY (`created_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_graph_item_last_modified_user_id_fk` FOREIGN KEY (`last_modified_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_graph_item_graph_id_fk` FOREIGN KEY (`graph_id`) REFERENCES `report_graph` (`id`)',
+				'CONSTRAINT `report_graph_item_report_item_id_fk` FOREIGN KEY (`report_item_id`) REFERENCES `report_item` (`id`)',
+			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
+		);
+
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>5,'name'=>'PC rupture rate','subtitle'=>'number of','range'=>100,'display_order'=>1));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>6,'name'=>'Complication rate','subtitle'=>'number of','range'=>100,'display_order'=>2));
 	}
 
 	public function down()
 	{
+		$this->dropTable('report_graph_item');
+		$this->dropTable('report_graph');
 		$this->dropTable('report_item');
 		$this->dropTable('report_item_data_type');
 		$this->dropTable('report_input');

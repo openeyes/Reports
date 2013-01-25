@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report".
+ * This is the model class for table "report_graph_item".
  *
- * The followings are the available columns in table 'report':
+ * The followings are the available columns in table 'report_graph_item':
  * @property integer $id
  * @property string $name
  *
  */
-class Report extends BaseActiveRecord
+class ReportGraphItem extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return Report the static model class
+	 * @return ReportGraphItem the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class Report extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report';
+		return 'report_graph_item';
 	}
 
 	/**
@@ -67,10 +67,8 @@ class Report extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'inputs' => array(self::HAS_MANY, 'ReportInput', 'report_id', 'order' => 'display_order'),
-			'items' => array(self::HAS_MANY, 'ReportItem', 'report_id', 'order' => 'display_order'),
-			'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspecialty_id'),
-			'graphs' => array(self::HAS_MANY, 'ReportGraph', 'report_id', 'order' => 'display_order'),
+			'graph' => array(self::BELONGS_TO, 'Graph', 'graph_id'),
+			'item' => array(self::BELONGS_TO, 'ReportItem', 'report_item_id'),
 		);
 	}
 
@@ -102,25 +100,25 @@ class Report extends BaseActiveRecord
 		));
 	}
 
-	public static function subspecialties() {
-		$subspecialties = array();
+	public function getValue() {
+		switch ($this->type->name) {
+			case 'audit':
+				$where = "action = '$this->property'";
+				if ($this->date_from) {
+					$where .= " and created_date >= '$this->date_from'";
+				}
+				if ($this->date_to) {
+					$where .= " and created_date >= '$this->date_to'";
+				}
 
-		foreach (Yii::app()->db->createCommand()
-			->select("distinct(subspecialty.id), subspecialty.name")
-			->from("subspecialty")
-			->join("report","report.subspecialty_id = subspecialty.id")
-			->order("subspecialty.name asc")
-			->queryAll() as $subspecialty) {
-			$subspecialties[$subspecialty['id']] = $subspecialty['name'];
+				return (int)Yii::app()->db->createCommand()
+					->select($this->distinct ? "count(distinct ucase(data))" : "count(*)")
+					->from("audit")
+					->where($where)
+					->queryScalar();
+				break;
 		}
 
-		return $subspecialties;
-	}
-
-	public function execute($data) {
-		Yii::import('application.modules.'.$this->module.'.controllers.*');
-
-		$report = new ReportController;
-		return $report->{$this->data_method}($data);
+		throw new Exception("Unhandled report item type: {$this->type->name}");
 	}
 }

@@ -10,7 +10,20 @@
 		$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
 	}?>
 </table>
-<br/>
+<?php foreach ($this->report->graphs as $i => $graph) {?>
+	<div id="graph<?php echo $i?>" class="ReportGraph whiteBox"></div>
+	<script type="text/javascript">
+		var g<?php echo $i?> = new OE_BulletGraph({
+			"id": "graph<?php echo $i?>",
+			"uri": baseUrl+'/Reports/default/graphData?report_id=<?php echo $this->report->id?>&graph_id=<?php echo $graph->id?>',
+			"initialData": <?php echo json_encode($graph->getInitialData($data))?>,
+			"refreshRate": 5000,
+			"percentage": true,
+			"width": 730,
+		});
+	</script>
+<?php }?>
+<br/><br/>
 <button type="submit" class="classy blue mini" id="printReport" name="run"><span class="button-span button-span-blue">Print report</span></button>
 <img class="loader" style="display: none;" src="<?php echo Yii::app()->createUrl('img/ajax-loader.gif')?>" alt="loading..." />&nbsp;
 <script type="text/javascript">
