@@ -5,25 +5,114 @@ class DefaultController extends BaseController {
 	public $page = 1;
 	public $items_per_page = 10;
 	public $pages = 1;
-	public $uri = '';
+	//public $layout = 'main';
+	public $title;
+	public $event;
+	public $report;
+
+	public function filters()
+	{
+		return array('accessControl');
+	}
+
+	public function accessRules()
+	{
+		return array(
+			array('allow',
+				'users'=>array('@')
+			),
+			// non-logged in can't view anything
+			array('deny',
+				'users'=>array('?')
+			),
+		);
+	}
 
 	protected function beforeAction($action) {
-		$this->assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false, -1, YII_DEBUG);
-		Yii::app()->clientScript->registerCSSFile($this->assetPath.'/css/module.css');
-		Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.js');
-		Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.chart.js');
-		Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/underscore.js');
-		Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/oe_bulletgraph.js');
+		if ($action->id != 'download') {
+			$this->assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false, -1, YII_DEBUG);
+
+			Yii::app()->clientScript->registerCSSFile($this->assetPath.'/css/module.css');
+			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.js');
+			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.chart.js');
+			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/underscore.js');
+			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/oe_bulletgraph.js');
+		}
+
 		return parent::beforeAction($action);
 	}
 
 	public function actionIndex() {
-		$this->render('index',array('graphs'=>$this->stubData($this->homeGraphs,array(
-			'subtitle' => 'number of',
-			'ranges' => array(1000),
-			'measures' => array(0),
-			'markers' => array(1000),
-		))));
+		$this->report = Report::model()->find(array('order'=>'id'));
+		$this->render('index');
+	}
+
+	public function actionView($id) {
+		if (!$this->report = Report::model()->findByPk($id)) {
+			throw new Exception("Report not found: $id");
+		}
+		$this->render('index');
+	}
+
+	public function actionExecute($id) {
+		if (!$this->report = Report::model()->findByPk($id)) {
+			throw new Exception("Report not found: $id");
+		}
+
+		$this->renderPartial('_report_summary',array('data'=>$this->report->execute($_POST)));
+	}
+
+	public function actionPrint($id) {
+		if (!$this->report = Report::model()->findByPk($id)) {
+			throw new Exception("Report not found: $id");
+		}
+
+		if (!isset($_POST['reportParams'])) {
+			throw new Exception("Missing reportParams");
+		}
+
+		$_POST = json_decode(rawurldecode($_POST['reportParams']),true);
+
+		$data = $this->report->execute($_POST);
+
+		$this->layout = '//layouts/pdf';
+
+		$pdf_print = new OEPDFPrint('Openeyes', 'OpenEyes Reports', 'OpenEyes Reports');
+
+		$body = $this->renderPartial('_report_pdf', array(
+			'data' => $data,
+		), true);
+
+		$pdf = new OELetter;
+		$pdf->addBody($body);
+		$pdf_print->addLetter($pdf);
+
+		$pdf_print->output();
+	}
+
+	public function actionData($id) {
+		if (!$report = Report::model()->findByPk($id)) {
+			throw new Exception("Report not found: $id");
+		}
+
+		$json = array();
+		$values = array();
+
+		foreach ($report->items as $item) {
+			$values[] = $item->value;
+		}
+
+		foreach ($values as $value) {
+			$object = new stdClass;
+			$object->title = '';
+			$object->subtitle = '';
+			$object->ranges = array(max($values));
+			$object->measures = array($value);
+			$object->markers = array($value);
+			$json[] = $object;
+		}
+
+		echo json_encode($json);
 	}
 
 	public function actionCataract_complications() {
@@ -400,10 +489,6 @@ class DefaultController extends BaseController {
 		}
 
 		echo json_encode($json);
-	}
-
-	public function actionView() {
-		$this->renderPartial('view',array('data' => $this->stats()));
 	}
 
 	public function actionCataractComplications() {

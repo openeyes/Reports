@@ -3,6 +3,8 @@
 class ReportsModule extends BaseEventTypeModule
 {
 	public function init() {
+		//$this->layoutPath = Yii::getPathOfAlias('application.modules.Reports.views.layouts');
+
 		$this->setImport(array(
 			'Reports.models.*',
 			'Reports.views.*',
