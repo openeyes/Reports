@@ -130,8 +130,8 @@ class m130124_083001_reports_table extends CDbMigration
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>2,'name'=>'Age','data_field'=>'age','subtitle'=>'Age of patients','display_order'=>2));
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>4,'name'=>'Eyes','data_field'=>'eyes','subtitle'=>'Eyes','display_order'=>3));
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>2,'name'=>'Final visual acuity','data_field'=>'final_visual_acuity','subtitle'=>'Final visual acuity','display_order'=>4));
-		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'PC ruptures','data_field'=>'pc_ruptures','subtitle'=>'Total PC ruptures','display_order'=>5));
-		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Complications','data_field'=>'complications','subtitle'=>'Total complications','display_order'=>6));
+		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'PC ruptures','data_field'=>'pc_ruptures','subtitle'=>'PC ruptures','display_order'=>5));
+		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Complications','data_field'=>'complications','subtitle'=>'All complications','display_order'=>6));
 
 		$this->createTable('report_graph',array(
 				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
