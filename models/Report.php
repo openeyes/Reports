@@ -109,13 +109,18 @@ class Report extends BaseActiveRecord
 			$subspecialties[null] = 'General';
 		}
 
+		$firm = Firm::model()->findByPk(Yii::app()->getController()->selectedFirmId);
+
 		foreach (Yii::app()->db->createCommand()
 			->select("distinct(subspecialty.id), subspecialty.name")
 			->from("subspecialty")
 			->join("report","report.subspecialty_id = subspecialty.id")
 			->order("subspecialty.name asc")
 			->queryAll() as $subspecialty) {
-			$subspecialties[$subspecialty['id']] = $subspecialty['name'];
+
+			if ($subspecialty['id'] == $firm->serviceSubspecialtyAssignment->subspecialty_id) {
+				$subspecialties[$subspecialty['id']] = $subspecialty['name'];
+			}
 		}
 
 		return $subspecialties;

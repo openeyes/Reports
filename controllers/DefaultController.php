@@ -5,7 +5,6 @@ class DefaultController extends BaseController {
 	public $page = 1;
 	public $items_per_page = 10;
 	public $pages = 1;
-	//public $layout = 'main';
 	public $title;
 	public $event;
 	public $report;
@@ -43,8 +42,25 @@ class DefaultController extends BaseController {
 		return parent::beforeAction($action);
 	}
 
+	public function selectDefaultReport() {
+		if (!$firm = Firm::model()->findByPk($this->selectedFirmId)) {
+			throw new Exception("No firm selected");
+		}
+
+		$criteria = new CDbCriteria;
+		$criteria->addCondition("subspecialty_id = {$firm->serviceSubspecialtyAssignment->subspecialty_id}");
+		$criteria->order = 'display_order asc';
+
+		if (!$this->report = Report::model()->find($criteria)) {
+			$criteria = new CDbCriteria;
+			$criteria->addCondition("subspecialty_id is null");
+			$criteria->order = 'display_order asc';
+			$this->report = Report::model()->find($criteria);
+		}
+	}
+
 	public function actionIndex() {
-		$this->report = Report::model()->find(array('order'=>'id'));
+		$this->selectDefaultReport();
 		$this->render('index');
 	}
 
