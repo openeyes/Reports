@@ -37,6 +37,7 @@ class DefaultController extends BaseController {
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.chart.js');
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/underscore.js');
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/oe_bulletgraph.js');
+			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/reports.js');
 		}
 
 		return parent::beforeAction($action);
@@ -656,5 +657,9 @@ class DefaultController extends BaseController {
 		ksort($data['surgeons']);
 
 		return $data;
+	}
+
+	public function getCommonOphthalmicDisorders() {
+		return CommonOphthalmicDisorder::getList(Firm::model()->findByPk($this->selectedFirmId));
 	}
 }

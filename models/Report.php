@@ -105,6 +105,10 @@ class Report extends BaseActiveRecord
 	public static function subspecialties() {
 		$subspecialties = array();
 
+		if (Report::model()->find('subspecialty_id is null')) {
+			$subspecialties[null] = 'General';
+		}
+
 		foreach (Yii::app()->db->createCommand()
 			->select("distinct(subspecialty.id), subspecialty.name")
 			->from("subspecialty")
@@ -118,9 +122,15 @@ class Report extends BaseActiveRecord
 	}
 
 	public function execute($data) {
-		Yii::import('application.modules.'.$this->module.'.controllers.*');
+		$this->module && Yii::import('application.modules.'.$this->module.'.controllers.*');
+		$report = new $this->controller(null);
+		return $report->{$this->method}($data);
+	}
 
-		$report = new ReportController;
-		return $report->{$this->data_method}($data);
+	public function getAllBySpeciality($subspecialty_id) {
+		$criteria = new CDbCriteria;
+		($subspecialty_id == null) ? $criteria->addCondition('subspecialty_id is null') : $criteria->addCondition('subspecialty_id = '.$subspecialty_id);
+		$criteria->order = 'display_order asc';
+		return Report::model()->findAll($criteria);
 	}
 }

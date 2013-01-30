@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report_graph_item".
+ * This is the model class for table "report_item_list_item".
  *
- * The followings are the available columns in table 'report_graph_item':
+ * The followings are the available columns in table 'report_item_list_item':
  * @property integer $id
  * @property string $name
  *
  */
-class ReportGraphItem extends BaseActiveRecord
+class ReportItemListItem extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return ReportGraphItem the static model class
+	 * @return ReportItemListItem the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class ReportGraphItem extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report_graph_item';
+		return 'report_item_list_item';
 	}
 
 	/**
@@ -67,8 +67,8 @@ class ReportGraphItem extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'graph' => array(self::BELONGS_TO, 'Graph', 'graph_id'),
-			'item' => array(self::BELONGS_TO, 'ReportItem', 'report_item_id'),
+			'dataType' => array(self::BELONGS_TO, 'ReportItemDataType', 'data_type_id'),
+			'listItems' => array(self::HAS_MANY, 'ReportItemListItem', 'list_item_id'),
 		);
 	}
 
@@ -98,5 +98,17 @@ class ReportGraphItem extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
+	}
+
+	public function generateLink($data) {
+		$link = $this->link;
+
+		foreach ($data as $key => $value) {
+			if (!is_array($value)) {
+				$link = str_replace('{'.$key.'}',$value,$link);
+			}
+		}
+
+		return $link;
 	}
 }

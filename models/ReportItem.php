@@ -68,6 +68,7 @@ class ReportItem extends BaseActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'dataType' => array(self::BELONGS_TO, 'ReportItemDataType', 'data_type_id'),
+			'listItems' => array(self::HAS_MANY, 'ReportItemListItem', 'item_id', 'order'=>'display_order'),
 		);
 	}
 
@@ -97,27 +98,5 @@ class ReportItem extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
-	}
-
-	public function getValue() {
-		switch ($this->type->name) {
-			case 'audit':
-				$where = "action = '$this->property'";
-				if ($this->date_from) {
-					$where .= " and created_date >= '$this->date_from'";
-				}
-				if ($this->date_to) {
-					$where .= " and created_date >= '$this->date_to'";
-				}
-
-				return (int)Yii::app()->db->createCommand()
-					->select($this->distinct ? "count(distinct ucase(data))" : "count(*)")
-					->from("audit")
-					->where($where)
-					->queryScalar();
-				break;
-		}
-
-		throw new Exception("Unhandled report item type: {$this->type->name}");
 	}
 }

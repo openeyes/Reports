@@ -14,7 +14,7 @@
 					<div class="report_text"></div>
 				</h4>
 				<ul class="reports hide">
-					<?php foreach (Report::model()->findAll('subspecialty_id=?',array($subspecialty_id)) as $report) {?>
+					<?php foreach (Report::model()->getAllBySpeciality($subspecialty_id) as $report) {?>
 						<li id="reportLi<?php echo $report->id?>">
 							<div class="quicklook" style="display: none; ">
 								<span class="report"><?php echo $report->name?></span>
