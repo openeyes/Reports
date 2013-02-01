@@ -92,7 +92,7 @@ class m130124_083001_reports_table extends CDbMigration
 
 		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_from','description'=>'Start date','default_value'=>'-12 months','display_order'=>1,'required'=>1));
 		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_to','description'=>'End date','default_value'=>'now','display_order'=>2,'required'=>1));
-		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>4,'name'=>'diagnoses','description'=>'Diagnoses','default_value'=>'','display_order'=>3,'required'=>1));
+		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>4,'name'=>'diagnoses','description'=>'Diagnoses','default_value'=>'','display_order'=>3));
 
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'surgeon_id','description'=>'Surgeon','display_order'=>1,'required'=>1));
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>5,'name'=>'match_surgeon','default_value'=>1,'description'=>'Match surgeon','display_order'=>2));
