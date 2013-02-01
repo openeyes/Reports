@@ -10,6 +10,8 @@
 			<?php }?>
 		</table>
 	</form>
+	<div id="errors">
+	</div>
 	<div style="margin-top: 2em;">
 		<button type="submit" class="classy blue mini" id="et_run" name="run"><span class="button-span button-span-blue">Run report</span></button>
 		<img class="loader" style="display: none;" src="<?php echo Yii::app()->createUrl('img/ajax-loader.gif')?>" alt="loading..." />&nbsp;
@@ -27,10 +29,23 @@
 				$.ajax({
 					'type': 'POST',
 					'data': $('#reportData').serialize(),
-					'url': baseUrl+'/Reports/default/execute/<?php echo $this->report->id?>',
+					'url': baseUrl+'/Reports/default/validate/<?php echo $this->report->id?>',
 					'success': function(html) {
-						enableButtons();
-						$('div.reportSummary').html(html).show();
+						if (html.length == 0) {
+							$('#errors').html('');
+							$.ajax({
+								'type': 'POST',
+								'data': $('#reportData').serialize(),
+								'url': baseUrl+'/Reports/default/execute/<?php echo $this->report->id?>',
+								'success': function(html) {
+									enableButtons();
+									$('div.reportSummary').html(html).show();
+								}
+							});
+						} else {
+							$('#errors').html(html);
+							enableButtons();
+						}
 					}
 				});
 			}

@@ -14,6 +14,8 @@ class m130124_083001_reports_table extends CDbMigration
 				'module' => 'varchar(64) COLLATE utf8_bin NULL',
 				'controller' => 'varchar(64) COLLATE utf8_bin NOT NULL',
 				'method' => 'varchar(64) COLLATE utf8_bin NOT NULL',
+				'can_print' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
+				'can_download' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
 				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
 				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
 				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
@@ -28,7 +30,7 @@ class m130124_083001_reports_table extends CDbMigration
 			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
 		);
 
-		$this->insert('report',array('subspecialty_id'=>4,'name'=>'Cataract outcomes','description'=>'Cataract outcomes report','icon'=>'treatment_operation','display_order'=>1,'module'=>'OphTrOperationnote','controller'=>'ReportController','method'=>'reportCataractOperations'));
+		$this->insert('report',array('subspecialty_id'=>4,'name'=>'Cataract outcomes','description'=>'Cataract outcomes report','icon'=>'treatment_operation','display_order'=>1,'module'=>'OphTrOperationnote','controller'=>'ReportController','method'=>'reportCataractOperations', 'can_download'=>0));
 		$this->insert('report',array('subspecialty_id'=>null,'name'=>'Patient diagnoses','description'=>'Patient diagnoses','icon'=>'treatment_operation','display_order'=>2,'module'=>null,'controller'=>'PatientController','method'=>'reportDiagnoses'));
 		$this->insert('report',array('subspecialty_id'=>null,'name'=>'Operations','description'=>'Operations','icon'=>'treatment_operation','display_order'=>3,'module'=>'OphTrOperationnote','controller'=>'ReportController','method'=>'reportOperations'));
 
@@ -64,6 +66,7 @@ class m130124_083001_reports_table extends CDbMigration
 				'description' => 'varchar(255) COLLATE utf8_bin NOT NULL',
 				'default_value' => 'varchar(255) COLLATE utf8_bin NOT NULL',
 				'display_order' => 'int(10) unsigned NOT NULL DEFAULT 0',
+				'required' => 'tinyint(1) unsigned NOT NULL DEFAULT 0',
 				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
 				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
 				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
@@ -91,12 +94,12 @@ class m130124_083001_reports_table extends CDbMigration
 		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_to','description'=>'End date','default_value'=>'now','display_order'=>2));
 		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>4,'name'=>'diagnoses','description'=>'Diagnoses','default_value'=>'','display_order'=>3));
 
-		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'surgeon_id','description'=>'Surgeon','display_order'=>1));
+		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'surgeon_id','description'=>'Surgeon','display_order'=>1,'required'=>1));
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>5,'name'=>'match_surgeon','default_value'=>1,'description'=>'Match surgeon','display_order'=>2));
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>5,'name'=>'match_assistant_surgeon','default_value'=>1,'description'=>'Match assistant surgeon','display_order'=>3));
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>5,'name'=>'match_supervising_surgeon','default_value'=>1,'description'=>'Match supervising surgeon','display_order'=>4));
-		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>3,'name'=>'date_from','description'=>'Date from','default_value'=>'-12 months','display_order'=>5));
-		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>3,'name'=>'date_to','description'=>'Date to','default_value'=>'now','display_order'=>6));
+		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>3,'name'=>'date_from','description'=>'Date from','default_value'=>'-12 months','display_order'=>5,'required'=>1));
+		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>3,'name'=>'date_to','description'=>'Date to','default_value'=>'now','display_order'=>6,'required'=>1));
 
 		$this->createTable('report_item_data_type',array(
 				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
@@ -207,6 +210,46 @@ class m130124_083001_reports_table extends CDbMigration
 		$this->insert('report_item_list_item',array('list_item_id'=>11,'data_type_id'=>6,'name'=>'Procedure','data_field'=>'procedure','subtitle'=>'Procedure','display_order'=>2));
 		$this->insert('report_item_list_item',array('list_item_id'=>12,'data_type_id'=>6,'name'=>'Complication','data_field'=>'complication','subtitle'=>'Complication','display_order'=>1));
 
+		$this->createTable('report_validation_rule_type',array(
+				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
+				'name' => 'varchar(64) COLLATE utf8_bin NOT NULL',
+				'display_order' => 'int(10) unsigned NOT NULL DEFAULT 0',
+				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'PRIMARY KEY (`id`)',
+				'KEY `report_vrt_last_modified_user_id_fk` (`last_modified_user_id`)',
+				'KEY `report_vrt_created_user_id_fk` (`created_user_id`)',
+				'CONSTRAINT `report_vrt_created_user_id_fk` FOREIGN KEY (`created_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_vrt_last_modified_user_id_fk` FOREIGN KEY (`last_modified_user_id`) REFERENCES `user` (`id`)',
+			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
+		);
+
+		$this->insert('report_validation_rule_type',array('name'=>'One of'));
+
+		$this->createTable('report_validation_rule',array(
+				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
+				'report_id' => 'int(10) unsigned NOT NULL',
+				'rule_type_id' => 'int(10) unsigned NOT NULL',
+				'rule' => 'varchar(1024) COLLATE utf8_bin NOT NULL',
+				'message' => 'varchar(1024) COLLATE utf8_bin NOT NULL',
+				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
+				'created_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
+				'PRIMARY KEY (`id`)',
+				'KEY `report_vr_last_modified_user_id_fk` (`last_modified_user_id`)',
+				'KEY `report_vr_created_user_id_fk` (`created_user_id`)',
+				'KEY `report_vr_report_id_fk` (`report_id`)',
+				'CONSTRAINT `report_vr_created_user_id_fk` FOREIGN KEY (`created_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_vr_last_modified_user_id_fk` FOREIGN KEY (`last_modified_user_id`) REFERENCES `user` (`id`)',
+				'CONSTRAINT `report_vr_report_id_fk` FOREIGN KEY (`report_id`) REFERENCES `report` (`id`)',
+			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
+		);
+
+		$this->insert('report_validation_rule',array('report_id'=>3,'rule_type_id'=>1,'rule'=>'match_surgeon,match_assistant_surgeon,match_supervising_surgeon','message'=>'At least one of the surgeon checkboxes must be selected'));
+
 		$this->createTable('report_graph',array(
 				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
 				'report_id' => 'int(10) unsigned NOT NULL',
@@ -260,6 +303,8 @@ class m130124_083001_reports_table extends CDbMigration
 	{
 		$this->dropTable('report_graph_item');
 		$this->dropTable('report_graph');
+		$this->dropTable('report_validation_rule');
+		$this->dropTable('report_validation_rule_type');
 		$this->dropTable('report_item_list_item');
 		$this->dropTable('report_item');
 		$this->dropTable('report_item_data_type');

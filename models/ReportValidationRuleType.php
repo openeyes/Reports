@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report".
+ * This is the model class for table "report_validation_rule_type".
  *
- * The followings are the available columns in table 'report':
+ * The followings are the available columns in table 'report_validation_rule_type':
  * @property integer $id
  * @property string $name
  *
  */
-class Report extends BaseActiveRecord
+class ReportValidationRuleType extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return Report the static model class
+	 * @return ReportValidationRuleType the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class Report extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report';
+		return 'report_validation_rule_type';
 	}
 
 	/**
@@ -67,11 +67,6 @@ class Report extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'inputs' => array(self::HAS_MANY, 'ReportInput', 'report_id', 'order' => 'display_order'),
-			'items' => array(self::HAS_MANY, 'ReportItem', 'report_id', 'order' => 'display_order'),
-			'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspecialty_id'),
-			'graphs' => array(self::HAS_MANY, 'ReportGraph', 'report_id', 'order' => 'display_order'),
-			'validationRules' => array(self::HAS_MANY, 'ReportValidationRule', 'report_id'),
 		);
 	}
 
@@ -103,58 +98,12 @@ class Report extends BaseActiveRecord
 		));
 	}
 
-	public static function subspecialties() {
-		$subspecialties = array();
-
-		if (Report::model()->find('subspecialty_id is null')) {
-			$subspecialties[null] = 'General';
+	public function pass($data) {
+		switch ($this->rule_type->name) {
+			case 'One of':
+				break;
 		}
 
-		$firm = Firm::model()->findByPk(Yii::app()->getController()->selectedFirmId);
-
-		foreach (Yii::app()->db->createCommand()
-			->select("distinct(subspecialty.id), subspecialty.name")
-			->from("subspecialty")
-			->join("report","report.subspecialty_id = subspecialty.id")
-			->order("subspecialty.name asc")
-			->queryAll() as $subspecialty) {
-
-			if ($subspecialty['id'] == $firm->serviceSubspecialtyAssignment->subspecialty_id) {
-				$subspecialties[$subspecialty['id']] = $subspecialty['name'];
-			}
-		}
-
-		return $subspecialties;
-	}
-
-	public function execute($data) {
-		$this->module && Yii::import('application.modules.'.$this->module.'.controllers.*');
-		$report = new $this->controller(null);
-		return $report->{$this->method}($data);
-	}
-
-	public function validateInput($data) {
-		$errors = array();
-
-		foreach ($this->inputs as $input) {
-			if ($input->required && !@$data[$input->name]) {
-				$errors[] = "$input->description is required";
-			}
-		}
-
-		foreach ($this->validationRules as $rule) {
-			if (!$rule->pass($data)) {
-				$errors[] = $rule->message;
-			}
-		}
-
-		return empty($errors) ? array() : array($this->name=>$errors);
-	}
-
-	public function getAllBySpeciality($subspecialty_id) {
-		$criteria = new CDbCriteria;
-		($subspecialty_id == null) ? $criteria->addCondition('subspecialty_id is null') : $criteria->addCondition('subspecialty_id = '.$subspecialty_id);
-		$criteria->order = 'display_order asc';
-		return Report::model()->findAll($criteria);
+		return false;
 	}
 }

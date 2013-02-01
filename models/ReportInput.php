@@ -111,4 +111,21 @@ class ReportInput extends BaseActiveRecord
 
 		return $this->default_value;
 	}
+
+	public function getPostedValue() {
+		switch ($this->data_type_id) {
+			case 1: return @$_REQUEST[$this->name];
+			case 2: $model = $this->data_type_param1; return $model::model()->findByPk(@$_REQUEST[$this->name])->reportDisplay;
+			case 3: return @$_REQUEST[$this->name];
+			case 4: $disorders = '';
+							foreach (Disorder::model()->findAll('id in ('.implode(',',@$_REQUEST['selected_diagnoses']).')') as $i => $disorder) {
+								if ($i) $disorders.=', ';
+								$disorders .= $disorder->term;
+							}
+							return '"'.$disorders.'"';
+			case 5: return @$_REQUEST[$this->name] ? 'Yes' : 'No';
+		}
+
+		throw new Exception("Unknown data_type_id: $this->data_type_id");
+	}
 }

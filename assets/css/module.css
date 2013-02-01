@@ -66,7 +66,9 @@ div.reportInputs { width: 1024px; }
 .reportInputs td { padding-top: 10px; padding-right: 10px; }
 div.reportSummary { width: 1024px; }
 .reportSummary td { padding-top: 10px; padding-right: 10px; }
-.reportSummary th { padding-top: 2px; text-align: left; }
+.reportSummary th { padding-top: 2px; text-align: left; width: 25em; }
 
 .reportData th { padding-top: 10px; text-align: left; padding-right: 14px;}
 .reportData td { padding-top: 10px; padding-right: 10px; }
+
+#errors { width: 76.8em; margin-top: 2em; }

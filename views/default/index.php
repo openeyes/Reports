@@ -22,29 +22,6 @@
 				<?php $this->renderPartial('reports_sidebar')?>
 				<div id="report_display">
 					<?php $this->renderPartial('_report')?>
-					<?php /*
-						<?php
-						if (isset($this->event)) {
-							$this->renderPartial(
-								"/clinical/".$event_template_name,
-								array(
-									'elements' => $elements,
-									'site' => $site
-								), false, true
-							);
-						} else if ($current_episode) {
-							if ($this->editing) {
-								$this->renderPartial('/clinical/updateEpisode',
-									array('episode' => $current_episode, 'error' => $error)
-								);
-							} else {
-								$this->renderPartial('/clinical/episodeSummary',
-									array('episode' => $current_episode)
-								);
-							}
-						}
-						*/
-						?>
 				</div>
 				<div class="colorband category_treatment"<?php if(!$this->title){ ?> style="display: none;"<?php } ?>></div>
 				<div id="display_actions_footer" class="display_actions footer"<?php if (!$this->title){?> style="display: none;"<?php }?>>

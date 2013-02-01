@@ -76,7 +76,19 @@ class DefaultController extends BaseController {
 			throw new Exception("Report not found: $id");
 		}
 
-		$this->renderPartial('_report_summary',array('data'=>$this->report->execute($_POST)));
+		$this->renderPartial('_report_summary',array('data'=>$this->report->execute($_REQUEST)));
+	}
+
+	public function actionValidate($id) {
+		if (!$this->report = Report::model()->findByPk($id)) {
+			throw new Exception("Report not found: $id");
+		}
+
+		$errors = $this->report->validateInput($_REQUEST);
+
+		if (!empty($errors)) {
+			$this->renderPartial('//elements/form_errors',array('errors'=>$errors));
+		}
 	}
 
 	public function actionPrint($id) {
@@ -84,13 +96,7 @@ class DefaultController extends BaseController {
 			throw new Exception("Report not found: $id");
 		}
 
-		if (!isset($_POST['reportParams'])) {
-			throw new Exception("Missing reportParams");
-		}
-
-		$_POST = json_decode(rawurldecode($_POST['reportParams']),true);
-
-		$data = $this->report->execute($_POST);
+		$data = $this->report->execute($_GET);
 
 		$this->layout = '//layouts/pdf';
 
@@ -105,6 +111,23 @@ class DefaultController extends BaseController {
 		$pdf_print->addLetter($pdf);
 
 		$pdf_print->output();
+	}
+
+	public function actionDownload($id) {
+		if (!$this->report = Report::model()->findByPk($id)) {
+			throw new Exception("Report not found: $id");
+		}
+
+		$data = $this->report->execute($_REQUEST);
+
+		header("Content-type: application/csv");
+		header('Content-Disposition: attachment; filename="OpenEyes Report '.date('d.m.Y').'.csv"');
+		header("Pragma: no-cache");
+		header("Expires: 0");
+
+		$csv = $this->renderPartial('_report_csv',array('data'=>$data),true);
+
+		echo $csv;
 	}
 
 	public function actionData($id) {

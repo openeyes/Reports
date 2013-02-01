@@ -47,23 +47,27 @@ OE_BulletGraph.prototype = {
 			setTimeout(function(){thiz.update();},1);
 		} else {
 			var thiz = this;
-			d3.json(this.uri, function(data) {
-				thiz.svg.map(function() {
-					return data.shift();
-				}).call(thiz.chart.duration(1000));
-			});
+			if (typeof(this.uri) != 'undefined') {
+				d3.json(this.uri, function(data) {
+					thiz.svg.map(function() {
+						return data.shift();
+					}).call(thiz.chart.duration(1000));
+				});
+			}
 		}
 	},
 
 	update : function() {
-		var thiz = this;
-		d3.json(this.uri, function(data) {
-			if (data != thiz.lastData) {
-				thiz.svg.map(function() {
-					return data.shift();
-				}).call(thiz.chart.duration(1000));
-			}
-		});
-		setTimeout(function(){thiz.update();},this.refreshRate);
+		if (typeof(this.uri) != 'undefined') {
+			var thiz = this;
+			d3.json(this.uri, function(data) {
+				if (data != thiz.lastData) {
+					thiz.svg.map(function() {
+						return data.shift();
+					}).call(thiz.chart.duration(1000));
+				}
+			});
+			setTimeout(function(){thiz.update();},this.refreshRate);
+		}
 	}
 };
