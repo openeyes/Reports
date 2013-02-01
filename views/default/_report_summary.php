@@ -38,7 +38,6 @@
 	$(document).ready(function() {
 		$('#printReport').click(function() {
 			if (!$(this).hasClass('disabled')) {
-				disableButtons();
 				printPDF(baseUrl+'/Reports/default/print/<?php echo $this->report->id?>',$('#printReportForm').serializeArray());
 			}
 			return false;
