@@ -7,6 +7,7 @@ OE_BulletGraph.prototype = {
 		this.height = 50 - this.margin.top - this.margin.bottom;
 		this.refreshRate = 0;
 		this.percentage = false;
+		this.show_scale = true;
 
 		for (var i in params) {
 			this[i] = params[i];

@@ -278,6 +278,7 @@ class m130124_083001_reports_table extends CDbMigration
 				'id' => 'int(10) unsigned NOT NULL AUTO_INCREMENT',
 				'graph_id' => 'int(10) unsigned NOT NULL',
 				'report_item_id' => 'int(10) unsigned NOT NULL',
+				'show_scale' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
 				'name' => 'varchar(64) COLLATE utf8_bin NOT NULL',
 				'subtitle' => 'varchar(64) COLLATE utf8_bin NOT NULL',
 				'range' => 'float NOT NULL',
@@ -298,9 +299,9 @@ class m130124_083001_reports_table extends CDbMigration
 			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
 		);
 
-		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>5,'name'=>'PC rupture rate','subtitle'=>'percentage','range'=>100,'display_order'=>1));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>5,'name'=>'PC rupture rate','subtitle'=>'percentage','range'=>100,'display_order'=>1,'show_scale'=>0));
 		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>6,'name'=>'Average rate','subtitle'=>'institution average','range'=>100,'display_order'=>2));
-		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>7,'name'=>'Complication rate','subtitle'=>'percentage','range'=>100,'display_order'=>3));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>7,'name'=>'Complication rate','subtitle'=>'percentage','range'=>100,'display_order'=>3,'show_scale'=>0));
 		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>8,'name'=>'Average rate','subtitle'=>'institution average','range'=>100,'display_order'=>4));
 	}
 
