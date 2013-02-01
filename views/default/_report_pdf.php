@@ -11,6 +11,8 @@
 	}?>
 	<div style="height: 2em;"></div>
 	<?php foreach ($this->report->items as $item) {
-		$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
+		if ($item->display) {
+			$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
+		}
 	}?>
 </table>

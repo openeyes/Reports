@@ -87,12 +87,12 @@ class m130124_083001_reports_table extends CDbMigration
 		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'surgeon_id','description'=>'Surgeon','display_order'=>2));
 		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'assistant_id','description'=>'Assistant surgeon','display_order'=>3));
 		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'supervising_surgeon_id','description'=>'Supervising surgeon','display_order'=>4));
-		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>3,'name'=>'date_from','description'=>'Date from','default_value'=>'-12 months','display_order'=>5));
-		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>3,'name'=>'date_to','description'=>'Date to','default_value'=>'now','display_order'=>6));
+		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>3,'name'=>'date_from','description'=>'Date from','default_value'=>'-12 months','display_order'=>5,'required'=>1));
+		$this->insert('report_input',array('report_id'=>1,'data_type_id'=>3,'name'=>'date_to','description'=>'Date to','default_value'=>'now','display_order'=>6,'required'=>1));
 
-		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_from','description'=>'Start date','default_value'=>'-12 months','display_order'=>1));
-		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_to','description'=>'End date','default_value'=>'now','display_order'=>2));
-		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>4,'name'=>'diagnoses','description'=>'Diagnoses','default_value'=>'','display_order'=>3));
+		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_from','description'=>'Start date','default_value'=>'-12 months','display_order'=>1,'required'=>1));
+		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>3,'name'=>'date_to','description'=>'End date','default_value'=>'now','display_order'=>2,'required'=>1));
+		$this->insert('report_input',array('report_id'=>2,'data_type_id'=>4,'name'=>'diagnoses','description'=>'Diagnoses','default_value'=>'','display_order'=>3,'required'=>1));
 
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>2,'data_type_param1'=>'User','data_type_param2'=>'getListSurgeons','name'=>'surgeon_id','description'=>'Surgeon','display_order'=>1,'required'=>1));
 		$this->insert('report_input',array('report_id'=>3,'data_type_id'=>5,'name'=>'match_surgeon','default_value'=>1,'description'=>'Match surgeon','display_order'=>2));
@@ -132,6 +132,7 @@ class m130124_083001_reports_table extends CDbMigration
 				'data_field' => 'varchar(64) COLLATE utf8_bin NOT NULL',
 				'subtitle' => 'varchar(64) COLLATE utf8_bin NOT NULL',
 				'display_order' => 'int(10) unsigned NOT NULL DEFAULT 0',
+				'display' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
 				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
 				'last_modified_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
 				'created_user_id' => 'int(10) unsigned NOT NULL DEFAULT \'1\'',
@@ -153,7 +154,9 @@ class m130124_083001_reports_table extends CDbMigration
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>4,'name'=>'Eyes','data_field'=>'eyes','subtitle'=>'Eyes','display_order'=>3));
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>2,'name'=>'Final visual acuity','data_field'=>'final_visual_acuity','subtitle'=>'Final visual acuity','display_order'=>4));
 		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'PC ruptures','data_field'=>'pc_ruptures','subtitle'=>'PC ruptures','display_order'=>5));
-		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Complications','data_field'=>'complications','subtitle'=>'All complications','display_order'=>6));
+		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Average','data_field'=>'pc_rupture_average','subtitle'=>'Average','display_order'=>6,'display'=>0));
+		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Complications','data_field'=>'complications','subtitle'=>'All complications','display_order'=>7));
+		$this->insert('report_item',array('report_id'=>1,'data_type_id'=>3,'name'=>'Average','data_field'=>'complication_average','subtitle'=>'Average','display_order'=>8,'display'=>0));
 
 		$this->insert('report_item',array('report_id'=>2,'data_type_id'=>5,'name'=>'Patients','data_field'=>'patients','subtitle'=>'Patient diagnoses','display_order'=>1));
 
@@ -188,24 +191,24 @@ class m130124_083001_reports_table extends CDbMigration
 			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
 		);
 
-		$this->insert('report_item_list_item',array('item_id'=>7,'data_type_id'=>7,'name'=>'Date','data_field'=>'date','subtitle'=>'Date','display_order'=>1));
+		$this->insert('report_item_list_item',array('item_id'=>9,'data_type_id'=>7,'name'=>'Date','data_field'=>'date','subtitle'=>'Date','display_order'=>1));
 
-		$this->insert('report_item_list_item',array('item_id'=>7,'data_type_id'=>6,'name'=>'Hospital no','data_field'=>'hos_num','subtitle'=>'Patient hospital number','display_order'=>2,'link'=>'/patient/episodes/{patient_id}'));
+		$this->insert('report_item_list_item',array('item_id'=>9,'data_type_id'=>6,'name'=>'Hospital no','data_field'=>'hos_num','subtitle'=>'Patient hospital number','display_order'=>2,'link'=>'/patient/episodes/{patient_id}'));
 
-		$this->insert('report_item_list_item',array('item_id'=>7,'data_type_id'=>6,'name'=>'First name','data_field'=>'first_name','subtitle'=>'Patient first name','display_order'=>3));
-		$this->insert('report_item_list_item',array('item_id'=>7,'data_type_id'=>6,'name'=>'Last name','data_field'=>'last_name','subtitle'=>'Patient last name','display_order'=>4));
-		$this->insert('report_item_list_item',array('item_id'=>7,'data_type_id'=>1,'name'=>'Patient ID','data_field'=>'patient_id','subtitle'=>'Patient ID','display'=>0));
-		$this->insert('report_item_list_item',array('item_id'=>7,'data_type_id'=>5,'name'=>'Diagnoses','data_field'=>'diagnoses','subtitle'=>'Diagnoses','display_order'=>5));
+		$this->insert('report_item_list_item',array('item_id'=>9,'data_type_id'=>6,'name'=>'First name','data_field'=>'first_name','subtitle'=>'Patient first name','display_order'=>3));
+		$this->insert('report_item_list_item',array('item_id'=>9,'data_type_id'=>6,'name'=>'Last name','data_field'=>'last_name','subtitle'=>'Patient last name','display_order'=>4));
+		$this->insert('report_item_list_item',array('item_id'=>9,'data_type_id'=>1,'name'=>'Patient ID','data_field'=>'patient_id','subtitle'=>'Patient ID','display'=>0));
+		$this->insert('report_item_list_item',array('item_id'=>9,'data_type_id'=>5,'name'=>'Diagnoses','data_field'=>'diagnoses','subtitle'=>'Diagnoses','display_order'=>5));
 		$this->insert('report_item_list_item',array('list_item_id'=>6,'data_type_id'=>6,'name'=>'Eye','data_field'=>'eye','subtitle'=>'Eye','display_order'=>1));
 		$this->insert('report_item_list_item',array('list_item_id'=>6,'data_type_id'=>6,'name'=>'Diagnosis','data_field'=>'diagnosis','subtitle'=>'Diagnosis','display_order'=>2));
 
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>7,'name'=>'Date','data_field'=>'date','subtitle'=>'Date','display_order'=>1));
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>6,'name'=>'Hospital no','data_field'=>'hos_num','subtitle'=>'Patient hospital number','display_order'=>2,'link'=>'/patient/episodes/{patient_id}'));
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>6,'name'=>'First name','data_field'=>'first_name','subtitle'=>'Patient first name','display_order'=>3));
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>6,'name'=>'Last name','data_field'=>'last_name','subtitle'=>'Patient last name','display_order'=>4));
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>5,'name'=>'Procedures','data_field'=>'procedures','subtitle'=>'Procedures','display_order'=>5));
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>5,'name'=>'Complications','data_field'=>'complications','subtitle'=>'Complications','display_order'=>6));
-		$this->insert('report_item_list_item',array('item_id'=>8,'data_type_id'=>6,'name'=>'Role','data_field'=>'role','subtitle'=>'Role','display_order'=>7));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>7,'name'=>'Date','data_field'=>'date','subtitle'=>'Date','display_order'=>1));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>6,'name'=>'Hospital no','data_field'=>'hos_num','subtitle'=>'Patient hospital number','display_order'=>2,'link'=>'/patient/episodes/{patient_id}'));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>6,'name'=>'First name','data_field'=>'first_name','subtitle'=>'Patient first name','display_order'=>3));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>6,'name'=>'Last name','data_field'=>'last_name','subtitle'=>'Patient last name','display_order'=>4));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>5,'name'=>'Procedures','data_field'=>'procedures','subtitle'=>'Procedures','display_order'=>5));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>5,'name'=>'Complications','data_field'=>'complications','subtitle'=>'Complications','display_order'=>6));
+		$this->insert('report_item_list_item',array('item_id'=>10,'data_type_id'=>6,'name'=>'Role','data_field'=>'role','subtitle'=>'Role','display_order'=>7));
 		$this->insert('report_item_list_item',array('list_item_id'=>11,'data_type_id'=>6,'name'=>'Eye','data_field'=>'eye','subtitle'=>'Eye','display_order'=>1));
 		$this->insert('report_item_list_item',array('list_item_id'=>11,'data_type_id'=>6,'name'=>'Procedure','data_field'=>'procedure','subtitle'=>'Procedure','display_order'=>2));
 		$this->insert('report_item_list_item',array('list_item_id'=>12,'data_type_id'=>6,'name'=>'Complication','data_field'=>'complication','subtitle'=>'Complication','display_order'=>1));
@@ -295,8 +298,10 @@ class m130124_083001_reports_table extends CDbMigration
 			), 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin'
 		);
 
-		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>5,'name'=>'PC rupture rate','subtitle'=>'number of','range'=>100,'display_order'=>1));
-		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>6,'name'=>'Complication rate','subtitle'=>'number of','range'=>100,'display_order'=>2));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>5,'name'=>'PC rupture rate','subtitle'=>'percentage','range'=>100,'display_order'=>1));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>6,'name'=>'Average rate','subtitle'=>'institution average','range'=>100,'display_order'=>2));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>7,'name'=>'Complication rate','subtitle'=>'percentage','range'=>100,'display_order'=>3));
+		$this->insert('report_graph_item',array('graph_id'=>1,'report_item_id'=>8,'name'=>'Average rate','subtitle'=>'institution average','range'=>100,'display_order'=>4));
 	}
 
 	public function down()

@@ -10,7 +10,9 @@
 		$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
 	}
 	foreach ($this->report->items as $item) {
-		$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
+		if ($item->display) {
+			$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
+		}
 	}?>
 </table>
 <?php foreach ($this->report->graphs as $i => $graph) {?>
@@ -37,7 +39,6 @@
 		$('#printReport').click(function() {
 			if (!$(this).hasClass('disabled')) {
 				disableButtons();
-				//$('#printReportForm').submit();
 				printPDF(baseUrl+'/Reports/default/print/<?php echo $this->report->id?>',$('#printReportForm').serializeArray());
 			}
 			return false;
