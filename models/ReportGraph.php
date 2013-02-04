@@ -123,6 +123,7 @@ class ReportGraph extends BaseActiveRecord
 			$object->ranges = array((int)$item->range);
 			$object->measures = array($data[$item->item->data_field]['percentage']);
 			$object->markers = array($data[$item->item->data_field]['percentage']);
+			$object->show_scale = (boolean)$item->show_scale;
 			$objects[] = $object;
 		}
 

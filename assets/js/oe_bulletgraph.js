@@ -30,6 +30,17 @@ OE_BulletGraph.prototype = {
 				.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 			.call(this.chart);
 
+		var i=0;
+		var initialData = this.initialData;
+		var height = this.height + this.margin.top + this.margin.bottom;
+
+		d3.select("#"+this.id).selectAll('svg').map(function() {
+			if (!initialData[i].show_scale) {
+				$(this).attr('height',height-20);
+			}
+			i += 1;
+		});
+
 		this.title = this.svg.append("svg:g")
 				.style("text-anchor", "end")
 				.attr("transform", "translate(-6," + this.height / 2 + ")");
