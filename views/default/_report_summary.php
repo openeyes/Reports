@@ -24,39 +24,6 @@
 			"percentage": true,
 			"width": 730,
 		});
-/*
-		$(document).ready(function() {
-			var map = [0,1,2,3,4,5,6,7,8,9,10,22,23,24,25,26,27,28,29,30,31,32];
-
-			var i = 0;
-
-			$('g').map(function() {
-				if ($(this).attr('class') == 'tick') {
-					if (inArray(i,map)) {
-						$(this).remove();
-					}
-					i += 1;
-				}
-			});
-
-			i = 0;
-			$('svg').map(function() {
-				if ($(this).attr('class') == 'bullet') {
-					if (i %2 == 0) {
-						$(this).attr('height','30');
-					}
-					i += 1;
-				}
-			});
-		});
-		function inArray(needle, haystack) {
-				var length = haystack.length;
-				for(var i = 0; i < length; i++) {
-						if(haystack[i] == needle) return true;
-				}
-				return false;
-		}
-		*/
 	</script>
 <?php }?>
 <br/><br/>
