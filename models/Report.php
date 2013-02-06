@@ -173,8 +173,6 @@ class Report extends BaseActiveRecord
 			$params['items'][$item->data_field] = $item->getParams($data);
 		}
 
-//die("<pre>".print_r($params,true));
-
 		$report = new $this->controller(null);
 
 		return $report->report($params);
