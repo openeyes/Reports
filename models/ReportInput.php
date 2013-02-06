@@ -68,6 +68,7 @@ class ReportInput extends BaseActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'dataType' => array(self::BELONGS_TO, 'ReportInputDataType', 'data_type_id'),
+			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
 		);
 	}
 

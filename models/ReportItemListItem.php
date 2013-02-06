@@ -69,6 +69,9 @@ class ReportItemListItem extends BaseActiveRecord
 		return array(
 			'dataType' => array(self::BELONGS_TO, 'ReportItemDataType', 'data_type_id'),
 			'listItems' => array(self::HAS_MANY, 'ReportItemListItem', 'list_item_id'),
+			'elementType' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
+			'fields' => array(self::HAS_MANY, 'ReportItemListItemField', 'list_item_id'),
+			'conditionals' => array(self::HAS_MANY, 'ReportItemListItemConditional', 'list_item_id'),
 		);
 	}
 
@@ -110,5 +113,37 @@ class ReportItemListItem extends BaseActiveRecord
 		}
 
 		return $link;
+	}
+
+	public function getParams($data) {
+		$params = array(
+			'type' => $this->dataType->name,
+		);
+
+		switch ($this->dataType->name) {
+			case 'list_from_element_relation':
+				$params['element'] = $this->elementType->class_name;
+				$params['element_relation'] = $this->element_relation;
+
+				foreach ($this->fields as $field) {
+					$params['fields'][$field->name] = array(
+						'type' => $field->dataType->name,
+						'field' => $field->data_field,
+					);
+				}
+
+				break;
+			case 'conditional':
+				foreach ($this->conditionals as $conditional) {
+					$params['conditions'][] = array(
+						'field' => $conditional->match_field,
+						'value' => $data[$conditional->input->name],
+						'result' => $conditional->result,
+					);
+				}
+				break;
+		}
+
+		return $params;
 	}
 }

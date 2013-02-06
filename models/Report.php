@@ -72,6 +72,7 @@ class Report extends BaseActiveRecord
 			'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspecialty_id'),
 			'graphs' => array(self::HAS_MANY, 'ReportGraph', 'report_id', 'order' => 'display_order'),
 			'validationRules' => array(self::HAS_MANY, 'ReportValidationRule', 'report_id'),
+			'datasets' => array(self::HAS_MANY, 'ReportDataset', 'report_id'),
 		);
 	}
 
@@ -128,9 +129,55 @@ class Report extends BaseActiveRecord
 	}
 
 	public function execute($data) {
-		$this->module && Yii::import('application.modules.'.$this->module.'.controllers.*');
+		$params = array();
+
+		foreach ($this->datasets as $dataset) {
+			$params['datasets'][$dataset->name] = $dataset->params;
+		} 
+
+		$whereOr = array();
+
+		foreach ($this->inputs as $input) {
+			if ($input->include) {
+				if ($input->dataType->name == 'checkbox_optional_match') {
+					if ($data[$input->name]) {
+						if ($input->or_id) {
+							$whereOr[$input->dataset->name][$input->or_id][$input->data_type_param2] = $data[$input->data_type_param1];
+						} else {
+							$params['datasets'][$input->dataset->name]['where'][$input->data_type_param2] = $data[$input->data_type_param1];
+						}
+					}
+				} else {
+					if ($input->or_id) {
+						$whereOr[$input->dataset->name][$input->or_id][$input->name] = $data[$input->name];
+					} else {
+						$params['datasets'][$input->dataset->name]['where'][$input->name] = $data[$input->name];
+					}
+				}
+			}
+		}
+
+		foreach ($whereOr as $dataset_name => $whereOrItems) {
+			foreach ($whereOrItems as $or_id => $fields) {
+				$whereOrItem = array();
+				foreach ($fields as $field => $value) {
+					$whereOrItem['fields'][$field] = $value;
+				}
+				$params['datasets'][$dataset_name]['whereOr'][] = $whereOrItem;
+			}
+		}
+
+		$params['items'] = array();
+
+		foreach ($this->items as $item) {
+			$params['items'][$item->data_field] = $item->getParams($data);
+		}
+
+//die("<pre>".print_r($params,true));
+
 		$report = new $this->controller(null);
-		return $report->{$this->method}($data);
+
+		return $report->report($params);
 	}
 
 	public function validateInput($data) {

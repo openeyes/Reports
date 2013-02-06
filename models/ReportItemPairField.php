@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report_item".
+ * This is the model class for table "report_item_pair_field".
  *
- * The followings are the available columns in table 'report_item':
+ * The followings are the available columns in table 'report_item_pair_field':
  * @property integer $id
  * @property string $name
  *
  */
-class ReportItem extends BaseActiveRecord
+class ReportItemPairField extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return ReportItem the static model class
+	 * @return ReportItemPairField the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class ReportItem extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report_item';
+		return 'report_item_pair_field';
 	}
 
 	/**
@@ -67,11 +67,10 @@ class ReportItem extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'dataType' => array(self::BELONGS_TO, 'ReportItemDataType', 'data_type_id'),
-			'listItems' => array(self::HAS_MANY, 'ReportItemListItem', 'item_id', 'order'=>'display_order'),
+			'dataType' => array(self::BELONGS_TO, 'ReportItemPairFieldDataType', 'data_type_id'),
+			'listItems' => array(self::HAS_MANY, 'ReportItemPairFieldListItem', 'item_id', 'order'=>'display_order'),
 			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
-			'pair_fields' => array(self::HAS_MANY, 'ReportItemPairField', 'item_id'),
-			'element_type' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
+			'pair_fields' => array(self::HAS_MANY, 'ReportItemPairFieldPairField', 'item_id'),
 		);
 	}
 
@@ -101,47 +100,5 @@ class ReportItem extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
-	}
-
-	public function getParams($data) {
-		$params = array(
-			'dataset' => $this->dataset->name,
-			'type' => $this->dataType->name,
-		);
-
-		if ($this->element_type) {
-			$params['element'] = $this->element_type->class_name;
-		}
-
-		foreach (array('element_relation','element_relation_field','element_relation_value') as $field) {
-			if ($this->{$field}) {
-				$params[$field] = $this->{$field};
-			}
-		}
-
-		switch ($this->dataType->name) {
-			case 'mean_and_range':
-				$params['field'] = $this->data_input_field;
-				break;
-			case 'number_and_percentage':
-				break;
-			case 'number_and_percentage_pair':
-				$params['fields'] = array();
-				foreach ($this->pair_fields as $field) {
-					$params['fields'][$field->name] = array(
-						'field' => $field->field,
-						'value' => $field->value,
-					);
-				}
-				break;
-			case 'list':
-				$params['fields'] = array();
-				foreach ($this->listItems as $list_item) {
-					$params['fields'][$list_item->data_field] = $list_item->getParams($data);
-				}
-				break;
-		}
-
-		return $params;
 	}
 }
