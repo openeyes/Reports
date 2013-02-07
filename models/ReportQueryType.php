@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report_validation_rule".
+ * This is the model class for table "report_query_type".
  *
- * The followings are the available columns in table 'report_validation_rule':
+ * The followings are the available columns in table 'report_query_type':
  * @property integer $id
  * @property string $name
  *
  */
-class ReportValidationRule extends BaseActiveRecord
+class ReportQueryType extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return ReportValidationRule the static model class
+	 * @return ReportQueryType the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class ReportValidationRule extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report_validation_rule';
+		return 'report_query_type';
 	}
 
 	/**
@@ -66,7 +66,6 @@ class ReportValidationRule extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'ruleType' => array(self::BELONGS_TO, 'ReportValidationRuleType', 'rule_type_id'),
 		);
 	}
 
@@ -96,19 +95,5 @@ class ReportValidationRule extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
-	}
-
-	public function pass($data) {
-		switch ($this->ruleType->name) {
-			case 'One of':
-				foreach (explode(',',$this->rule) as $field) {
-					if (@$data[$field]) {
-						return true;
-					}
-				}
-				return false;
-		}
-
-		return false;
 	}
 }

@@ -52,7 +52,6 @@ class ReportDataset extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -69,6 +68,8 @@ class ReportDataset extends BaseActiveRecord
 		return array(
 			'report' => array(self::BELONGS_TO, 'Report', 'report_id'),
 			'elements' => array(self::HAS_MANY, 'ReportDatasetElement', 'dataset_id'),
+			'inputs' => array(self::HAS_MANY, 'ReportInput', 'dataset_id'),
+			'items' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'order' => 'display_order'),
 		);
 	}
 
@@ -100,13 +101,157 @@ class ReportDataset extends BaseActiveRecord
 		));
 	}
 
-	public function getParams() {
-		$params = array();
-
-		foreach ($this->elements as $element) {
-			$params['elements'][$element->element_type->class_name] = $element->params;
+	public function addElement($element_type_id, $optional=0) {
+		if (!$element = ReportDatasetElement::model()->find('dataset_id=? and element_type_id=?',array($this->id,$element_type_id))) {
+			$element = new ReportDatasetElement;
+			$element->dataset_id = $this->id;
+			$element->element_type_id = $element_type_id;
 		}
 
-		return $params;
+		$element->optional = $optional;
+
+		if (!$element->save()) {
+			throw new Exception("Unable to save dataset element: ".print_r($element->getErrors(),true));
+		}
+
+		return $element;
+	}
+
+	public function addInput($params) {
+		if (!$input = ReportInput::model()->find('dataset_id=? and name=?',array($this->id,$params['name']))) {
+			$input = new ReportInput;
+			$input->dataset_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$input->{$key} = $value;
+		}
+
+		if (!$input->save()) {
+			throw new Exception("Unable to save report input: ".print_r($element->getErrors(),true));
+		}
+
+		return $input;
+	}
+
+	public function addItem($params) {
+		if (!$item = ReportItem::model()->find('dataset_id=? and data_field=?',array($this->id,$params['data_field']))) {
+			$item = new ReportItem;
+			$item->dataset_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$item->{$key} = $value;
+		}
+
+		if (!$item->save()) {
+			throw new Exception("Unable to save report item: ".print_r($element->getErrors(),true));
+		}
+
+		return $item;
+	}
+
+	public function compute($inputs) {
+		$method = "compute_{$this->report->queryType->name}";
+
+		if (method_exists($this,$method)) {
+			return $this->{$method}($inputs);
+		}
+
+		throw new Exception("Dataset compute method for query type '{$this->report->queryType->name}' has not been implemented.");
+	}
+
+	public function compute_Events($inputs) {
+		$params = array();
+		$whereOr = array();
+
+		foreach ($this->inputs as $input) {
+			if ($input->include) {
+				if ($input->dataType->name == 'checkbox_optional_match') {
+					if ($inputs[$input->name]) {
+						if ($input->or_id) {
+							$whereOr[$input->or_id][$input->data_type_param2] = $inputs[$input->data_type_param1];
+						} else {
+							$params['where'][$input->data_type_param2] = $inputs[$input->data_type_param1];
+						}
+					}
+				} else {
+					if ($input->or_id) {
+						$whereOr[$input->or_id][$input->name] = $inputs[$input->name];
+					} else {
+						$params['where'][$input->name] = $inputs[$input->name];
+					}
+				}
+			}
+		}
+
+		foreach ($whereOr as $or_id => $fields) {
+			$whereOrItem = array();
+			foreach ($fields as $field => $value) {
+				$whereOrItem['fields'][$field] = $value;
+			}
+			$params['whereOr'][] = $whereOrItem;
+		}
+
+		$select = array('e.datetime,p.dob,p.hos_num,c.first_name,c.last_name');
+		$where = "e.deleted = ? and ep.deleted = ?";
+		$whereParams = array(0,0);
+
+		if (@$params['where']['firm_id']) {
+			$where .= " and ep.firm_id = ?";
+			$whereParams[] = $params['where']['firm_id'];
+		}
+		if (@$params['where']['date_from']) {
+			$where .= " and e.datetime >= ?";
+			$whereParams[] = date('Y-m-d',strtotime($params['where']['date_from']))." 00:00:00";
+		}
+		if (@$params['where']['date_to']) {
+			$where .= " and e.datetime <= ?";
+			$whereParams[] = date('Y-m-d',strtotime($params['where']['date_to']))." 23:59:59";
+		}
+
+		if (@$params['whereOr']) {
+			foreach ($params['whereOr'] as $whereOr) {
+				$clause = '';
+				foreach ($whereOr['fields'] as $field => $value) {
+					if ($clause) $clause .= ' or ';
+					$clause .= "$field = ?";
+					$whereParams[] = $value;
+				}
+				if ($clause) {
+					$where .= " and ($clause)";
+				}
+			}
+		}
+
+		$data = Yii::app()->db->createCommand()
+			->from('event e')
+			->join('episode ep','e.episode_id = ep.id')
+			->join('patient p','ep.patient_id = p.id')
+			->join('contact c',"c.parent_class = 'Patient' and c.parent_id = p.id");
+
+		foreach ($this->elements as $element) {
+			$model = new $element->elementType->class_name;
+			$table = $model->tableName();
+
+			if ($element->optional) {
+				$data->leftJoin("$table el{$element->id}","el{$element->id}.event_id = e.id");
+			} else {
+				$data->join("$table el{$element->id}","el{$element->id}.event_id = e.id");
+			}
+
+			$select[] = "el{$element->id}.id as el{$element->id}_id";
+
+			foreach ($element->fields as $field) {
+				$select[] = "el{$element->id}.{$field->field}";
+			}
+
+			foreach ($element->joins as $join) {
+				$data->join($join->join_table,"el{$element->id}.{$join->join_clause}");
+				$select[] = $join->join_select;
+			}
+		}
+
+		return $data->select(implode(',',$select))->where($where,$whereParams)->queryAll();
 	}
 }

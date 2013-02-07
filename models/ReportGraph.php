@@ -52,7 +52,6 @@ class ReportGraph extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -98,6 +97,23 @@ class ReportGraph extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
+	}
+
+	public function addItem($params) {
+		if (!$item = ReportGraphItem::model()->find('graph_id=? and report_item_id=?',array($this->id,$params['report_item_id']))) {
+			$item = new ReportGraphItem;
+			$item->graph_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$item->{$key} = $value;
+		}
+
+		if (!$item->save()) {
+			throw new Exception("Unable to save graph item: ".print_r($item->getErrors(),true));
+		}
+
+		return $item;
 	}
 
 	public function getDefaultValue() {

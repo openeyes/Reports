@@ -52,7 +52,6 @@ class ReportInputDataType extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -96,5 +95,20 @@ class ReportInputDataType extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
+	}
+
+	static public function add($name, $display_order=1) {
+		if (!$dataType = ReportInputDataType::model()->find('name=?',array($name))) {
+			$dataType = new ReportInputDataType;
+			$dataType->name = $name;
+		}
+
+		$dataType->display_order = $display_order;
+
+		if (!$dataType->save()) {
+			throw new Exception("Unable to save input data type: ".print_r($dataType->getErrors(),true));
+		}
+
+		return $dataType;
 	}
 }

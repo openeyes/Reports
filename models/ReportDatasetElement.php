@@ -52,7 +52,6 @@ class ReportDatasetElement extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -68,7 +67,7 @@ class ReportDatasetElement extends BaseActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
-			'element_type' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
+			'elementType' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
 			'fields' => array(self::HAS_MANY, 'ReportDatasetElementField', 'element_id'),
 			'joins' => array(self::HAS_MANY, 'ReportDatasetElementJoin', 'element_id'),
 		);
@@ -102,21 +101,32 @@ class ReportDatasetElement extends BaseActiveRecord
 		));
 	}
 
-	public function getParams() {
-		$params = array();
+	public function addField($field_name) {
+		if (!$field = ReportDatasetElementField::model()->find('element_id=? and field=?',array($this->id,$field_name))) {
+			$field = new ReportDatasetElementField;
+			$field->element_id = $this->id;
+			$field->field = $field_name;
 
-		if ($this->optional) {
-			$params['optional'] = true;
+			if (!$field->save()) {
+				throw new Exception("Unable to save element field: ".print_r($field->getErrors(),true));
+			}
+		}
+	}
+
+	public function addJoin($params) {
+		if (!$join = ReportDatasetElementJoin::model()->find('element_id=? and join_table=?',array($this->id,$params['join_table']))) {
+			$join = new ReportDatasetElementJoin;
+			$join->element_id = $this->id;
 		}
 
-		foreach ($this->fields as $field) {
-			$params['select'][] = $field->field;
+		foreach ($params as $key => $value) {
+			$join->{$key} = $value;
 		}
 
-		foreach ($this->joins as $join) {
-			$params['join'][] = $join->params;
+		if (!$join->save()) {
+			throw new Exception("Unable to save element join: ".print_r($join->getErrors(),true));
 		}
 
-		return $params;
+		return $join;
 	}
 }

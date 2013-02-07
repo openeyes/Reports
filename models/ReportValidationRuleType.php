@@ -52,7 +52,6 @@ class ReportValidationRuleType extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -98,12 +97,16 @@ class ReportValidationRuleType extends BaseActiveRecord
 		));
 	}
 
-	public function pass($data) {
-		switch ($this->rule_type->name) {
-			case 'One of':
-				break;
+	static public function add($name) {
+		if (!$rule_type = ReportValidationRuleType::model()->find('name=?',array($name))) {
+			$rule_type = new ReportValidationRuleType;
+			$rule_type->name = $name;
+
+			if (!$rule_type->save()) {
+				throw new Exception("Unable to save validation rule type: ".print_r($rule_type->getErrors(),true));
+			}
 		}
 
-		return false;
+		return $rule_type;
 	}
 }

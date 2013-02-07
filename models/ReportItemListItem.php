@@ -52,7 +52,6 @@ class ReportItemListItem extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -69,9 +68,9 @@ class ReportItemListItem extends BaseActiveRecord
 		return array(
 			'dataType' => array(self::BELONGS_TO, 'ReportItemDataType', 'data_type_id'),
 			'listItems' => array(self::HAS_MANY, 'ReportItemListItem', 'list_item_id'),
-			'elementType' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
 			'fields' => array(self::HAS_MANY, 'ReportItemListItemField', 'list_item_id'),
-			'conditionals' => array(self::HAS_MANY, 'ReportItemListItemConditional', 'list_item_id'),
+			'conditionals' => array(self::HAS_MANY, 'ReportItemListItemConditional', 'list_item_id', 'order' => 'display_order'),
+			'element' => array(self::BELONGS_TO, 'ReportDatasetElement', 'element_id'),
 		);
 	}
 
@@ -103,6 +102,40 @@ class ReportItemListItem extends BaseActiveRecord
 		));
 	}
 
+	public function addField($params) {
+		if (!$field = ReportItemListItemField::model()->find('list_item_id=? and name=?',array($this->id,$params['name']))) {
+			$field = new ReportItemListItemField;
+			$field->list_item_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$field->{$key} = $value;
+		}
+
+		if (!$field->save()) {
+			throw new Exception("Unable to save list item field: ".print_r($field->getErrors(),true));
+		}
+
+		return $field;
+	}
+
+	public function addConditional($params) {
+		if (!$conditional = ReportItemListItemConditional::model()->find('list_item_id=? and match_field=?',array($this->id,$params['match_field']))) {
+			$conditional = new ReportItemListItemConditional;
+			$conditional->list_item_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$conditional->{$key} = $value;
+		}
+
+		if (!$conditional->save()) {
+			throw new Exception("Unable to save list item conditional: ".print_r($conditional->getErrors(),true));
+		}
+
+		return $conditional;
+	}
+
 	public function generateLink($data) {
 		$link = $this->link;
 
@@ -115,35 +148,36 @@ class ReportItemListItem extends BaseActiveRecord
 		return $link;
 	}
 
-	public function getParams($data) {
-		$params = array(
-			'type' => $this->dataType->name,
-		);
-
+	public function compute($dataItem, $inputs) {
 		switch ($this->dataType->name) {
+			case 'NHSDate':
+				return Helper::convertMySQL2NHS($dataItem[$this->data_field]);
+			case 'string':
+				return $dataItem[$this->data_field];
 			case 'list_from_element_relation':
-				$params['element'] = $this->elementType->class_name;
-				$params['element_relation'] = $this->element_relation;
+				$model = $this->element->elementType->class_name;
+				$listItems = array();
 
-				foreach ($this->fields as $field) {
-					$params['fields'][$field->name] = array(
-						'type' => $field->dataType->name,
-						'field' => $field->data_field,
-					);
+				if ($element = $model::model()->findByPk($dataItem["el{$this->element_id}_id"])) {
+					foreach ($element->{$this->element_relation} as $element_related_item) {
+						$listItem = array();
+
+						foreach ($this->fields as $field) {
+							$listItem[$field->name] = $field->compute($dataItem, $element_related_item);
+						}
+
+						$listItems[] = $listItem;
+					}
 				}
 
-				break;
+				return $listItems;
 			case 'conditional':
-				foreach ($this->conditionals as $conditional) {
-					$params['conditions'][] = array(
-						'field' => $conditional->match_field,
-						'value' => $data[$conditional->input->name],
-						'result' => $conditional->result,
-					);
+				foreach ($this->conditionals as $condition) {
+					if ($dataItem[$condition->match_field] == $inputs[$condition->input->name]) {
+						return $condition->result;
+					}
 				}
-				break;
+				return null;
 		}
-
-		return $params;
 	}
 }

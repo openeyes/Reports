@@ -6,12 +6,16 @@
 	<?php echo $this->renderPartial('_report_post_data')?>
 </form>
 <table class="reportSummary">
-	<?php foreach ($this->report->inputs as $input) {
-		$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
+	<?php foreach ($this->report->datasets as $dataset) {
+		foreach ($dataset->inputs as $input) {
+			$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
+		}
 	}
-	foreach ($this->report->items as $item) {
-		if ($item->display) {
-			$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
+	foreach ($this->report->datasets as $dataset) {
+		foreach ($dataset->items as $item) {
+			if ($item->display) {
+				$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
+			}
 		}
 	}?>
 </table>

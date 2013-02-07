@@ -2,12 +2,14 @@
 	<h4><strong>OpenEyes Reports</strong></h4>
 	<form id="reportData">
 		<table class="reportInputs">
-			<?php foreach ($this->report->inputs as $input) {?>
-				<tr>
-					<td><?php echo $input->description?>:</td>
-					<td><?php $this->renderPartial('_input_field_'.$input->dataType->name,array('input'=>$input))?></td>
-				</tr>
-			<?php }?>
+			<?php foreach ($this->report->datasets as $dataset) {
+				foreach ($dataset->inputs as $input) {?>
+					<tr>
+						<td><?php echo $input->description?>:</td>
+						<td><?php $this->renderPartial('_input_field_'.$input->dataType->name,array('input'=>$input))?></td>
+					</tr>
+				<?php }
+			}?>
 		</table>
 	</form>
 	<div id="errors">

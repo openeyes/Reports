@@ -52,7 +52,6 @@ class ReportDatasetElementJoin extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -96,13 +95,5 @@ class ReportDatasetElementJoin extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
-	}
-
-	public function getParams() {
-		return array(
-			'join_table' => $this->join_table,
-			'join_clause' => $this->join_clause,
-			'join_select' => $this->join_select,
-		);
 	}
 }

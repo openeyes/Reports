@@ -52,7 +52,6 @@ class ReportItemPairField extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -67,10 +66,6 @@ class ReportItemPairField extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'dataType' => array(self::BELONGS_TO, 'ReportItemPairFieldDataType', 'data_type_id'),
-			'listItems' => array(self::HAS_MANY, 'ReportItemPairFieldListItem', 'item_id', 'order'=>'display_order'),
-			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
-			'pair_fields' => array(self::HAS_MANY, 'ReportItemPairFieldPairField', 'item_id'),
 		);
 	}
 

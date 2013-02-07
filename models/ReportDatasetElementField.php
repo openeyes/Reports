@@ -52,7 +52,6 @@ class ReportDatasetElementField extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -68,7 +67,7 @@ class ReportDatasetElementField extends BaseActiveRecord
 		// class name for the relations automatically generated below.
 		return array(
 			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
-			'element_type' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
+			'elementType' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
 			'fields' => array(self::HAS_MANY, 'ReportDatasetElementFieldField', 'element_id'),
 		);
 	}

@@ -52,7 +52,6 @@ class Report extends BaseActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('name', 'required'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name', 'safe', 'on'=>'search'),
@@ -67,12 +66,11 @@ class Report extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'inputs' => array(self::HAS_MANY, 'ReportInput', 'report_id', 'order' => 'display_order'),
-			'items' => array(self::HAS_MANY, 'ReportItem', 'report_id', 'order' => 'display_order'),
+			'queryType' => array(self::BELONGS_TO, 'ReportQueryType', 'query_type_id'),
 			'subspecialty' => array(self::BELONGS_TO, 'Subspecialty', 'subspecialty_id'),
 			'graphs' => array(self::HAS_MANY, 'ReportGraph', 'report_id', 'order' => 'display_order'),
 			'validationRules' => array(self::HAS_MANY, 'ReportValidationRule', 'report_id'),
-			'datasets' => array(self::HAS_MANY, 'ReportDataset', 'report_id'),
+			'datasets' => array(self::HAS_MANY, 'ReportDataset', 'report_id', 'order' => 'display_order'),
 		);
 	}
 
@@ -104,6 +102,82 @@ class Report extends BaseActiveRecord
 		));
 	}
 
+	public static function add($params) {
+		$whereParams = array(
+			$params['query_type_id'],
+			$params['name'],
+		);
+
+		if (!@$params['subspecialty_id']) {
+			$subspecialty = "subspecialty_id is null";
+		} else {
+			$subspecialty = "subspecialty_id = ?";
+			$whereParams[] = $params['subspecialty_id'];
+		}
+
+		if (!$report = Report::model()->find("query_type_id=? and name=? and $subspecialty",$whereParams)) {
+			$report = new Report;
+		}
+
+		foreach ($params as $key => $value) {
+			$report->{$key} = $value;
+		}
+
+		if (!$report->save()) {
+			throw new Exception("Unable to save report: ".print_r($report->getErrors(),true));
+		}
+
+		return $report;
+	}
+
+	public function addDataset($name) {
+		if (!$dataset = ReportDataset::model()->find('report_id=? and name=?',array($this->id,$name))) {
+			$dataset = new ReportDataset;
+			$dataset->report_id = $this->id;
+			$dataset->name = $name;
+			$dataset->display_order = count(ReportDataset::model()->findAll('report_id=?',array($this->id))) + 1;
+
+			if (!$dataset->save()) {
+				throw new Exception("Unable to save report dataset: ".print_r($dataset->getErrors(),true));
+			}
+		}
+
+		return $dataset;
+	}
+
+	public function addGraph($name, $display_order=1) {
+		if (!$graph = ReportGraph::model()->find('report_id=? and name=?',array($this->id,$name))) {
+			$graph = new ReportGraph;
+			$graph->report_id = $this->id;
+			$graph->name = $name;
+		}
+
+		$graph->display_order = $display_order;
+
+		if (!$graph->save()) {
+			throw new Exception("Unable to save graph: ".print_r($graph->getErrors(),true));
+		}
+
+		return $graph;
+	}
+
+	public function addRule($params) {
+		if (!$rule = ReportValidationRule::model()->find('report_id=? and rule=?',array($this->id,$params['rule']))) {
+			$rule = new ReportValidationRule;
+			$rule->report_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$rule->{$key} = $value;
+		}
+
+		if (!$rule->save()) {
+			throw new Exception("Unable to save validation rule: ".print_r($rule->getErrors(),true));
+		}
+
+		return $rule;
+	}
+
 	public static function subspecialties() {
 		$subspecialties = array();
 
@@ -128,62 +202,28 @@ class Report extends BaseActiveRecord
 		return $subspecialties;
 	}
 
-	public function execute($data) {
-		$params = array();
+	public function execute($inputs) {
+		$results = array();
 
 		foreach ($this->datasets as $dataset) {
-			$params['datasets'][$dataset->name] = $dataset->params;
-		} 
+			$data = $dataset->compute($inputs);
 
-		$whereOr = array();
-
-		foreach ($this->inputs as $input) {
-			if ($input->include) {
-				if ($input->dataType->name == 'checkbox_optional_match') {
-					if ($data[$input->name]) {
-						if ($input->or_id) {
-							$whereOr[$input->dataset->name][$input->or_id][$input->data_type_param2] = $data[$input->data_type_param1];
-						} else {
-							$params['datasets'][$input->dataset->name]['where'][$input->data_type_param2] = $data[$input->data_type_param1];
-						}
-					}
-				} else {
-					if ($input->or_id) {
-						$whereOr[$input->dataset->name][$input->or_id][$input->name] = $data[$input->name];
-					} else {
-						$params['datasets'][$input->dataset->name]['where'][$input->name] = $data[$input->name];
-					}
-				}
+			foreach ($dataset->items as $item) {
+				$results[$item->data_field] = $item->compute($data, $inputs);
 			}
 		}
-
-		foreach ($whereOr as $dataset_name => $whereOrItems) {
-			foreach ($whereOrItems as $or_id => $fields) {
-				$whereOrItem = array();
-				foreach ($fields as $field => $value) {
-					$whereOrItem['fields'][$field] = $value;
-				}
-				$params['datasets'][$dataset_name]['whereOr'][] = $whereOrItem;
-			}
-		}
-
-		$params['items'] = array();
-
-		foreach ($this->items as $item) {
-			$params['items'][$item->data_field] = $item->getParams($data);
-		}
-
-		$report = new $this->controller(null);
-
-		return $report->report($params);
+		
+		return $results;
 	}
 
 	public function validateInput($data) {
 		$errors = array();
 
-		foreach ($this->inputs as $input) {
-			if ($input->required && !@$data[$input->name]) {
-				$errors[] = "$input->description is required";
+		foreach ($this->datasets as $dataset) {
+			foreach ($dataset->inputs as $input) {
+				if ($input->required && !@$data[$input->name]) {
+					$errors[] = "$input->description is required";
+				}
 			}
 		}
 
