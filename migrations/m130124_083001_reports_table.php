@@ -28,7 +28,6 @@ class m130124_083001_reports_table extends CDbMigration
 				'description' => 'varchar(255) COLLATE utf8_bin NOT NULL',
 				'icon' => 'varchar(255) COLLATE utf8_bin NOT NULL',
 				'display_order' => 'int(10) unsigned NOT NULL DEFAULT 0',
-				'controller' => 'varchar(64) COLLATE utf8_bin NOT NULL',
 				'can_print' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
 				'can_download' => 'tinyint(1) unsigned NOT NULL DEFAULT 1',
 				'last_modified_date' => 'datetime NOT NULL DEFAULT \'1900-01-01 00:00:00\'',
