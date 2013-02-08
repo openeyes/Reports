@@ -12,10 +12,8 @@
 		}
 	}
 	foreach ($this->report->datasets as $dataset) {
-		foreach ($dataset->items as $item) {
-			if ($item->display) {
-				$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
-			}
+		foreach ($dataset->displayItems as $item) {
+			$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
 		}
 	}?>
 </table>

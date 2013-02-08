@@ -102,6 +102,23 @@ class ReportItemListItem extends BaseActiveRecord
 		));
 	}
 
+	public function addListItem($params) {
+		if (!$item = ReportItemListItem::model()->find('list_item_id=? and data_field=?',array($this->id,$params['data_field']))) {
+			$item = new ReportItemListItem;
+			$item->list_item_id = $this->id;
+		}
+
+		foreach ($params as $key => $value) {
+			$item->{$key} = $value;
+		}
+
+		if (!$item->save()) {
+			throw new Exception("Unable to save list item: ".print_r($item->getErrors(),true));
+		}
+
+		return $item;
+	}
+
 	public function addField($params) {
 		if (!$field = ReportItemListItemField::model()->find('list_item_id=? and name=?',array($this->id,$params['name']))) {
 			$field = new ReportItemListItemField;
@@ -148,12 +165,15 @@ class ReportItemListItem extends BaseActiveRecord
 		return $link;
 	}
 
-	public function compute($dataItem, $inputs) {
+	public function compute($dataItem, $inputs, $element_related_item=null) {
 		switch ($this->dataType->name) {
 			case 'NHSDate':
 				return Helper::convertMySQL2NHS($dataItem[$this->data_field]);
+
 			case 'string':
+			case 'number':
 				return $dataItem[$this->data_field];
+
 			case 'list_from_element_relation':
 				$model = $this->element->elementType->class_name;
 				$listItems = array();
@@ -162,8 +182,8 @@ class ReportItemListItem extends BaseActiveRecord
 					foreach ($element->{$this->element_relation} as $element_related_item) {
 						$listItem = array();
 
-						foreach ($this->fields as $field) {
-							$listItem[$field->name] = $field->compute($dataItem, $element_related_item);
+						foreach ($this->listItems as $listItemSpec) {
+							$listItem[$listItemSpec->name] = $listItemSpec->compute($dataItem, $inputs, $element_related_item);
 						}
 
 						$listItems[] = $listItem;
@@ -171,6 +191,7 @@ class ReportItemListItem extends BaseActiveRecord
 				}
 
 				return $listItems;
+
 			case 'conditional':
 				foreach ($this->conditionals as $condition) {
 					if ($dataItem[$condition->match_field] == $inputs[$condition->input->name]) {
@@ -178,6 +199,26 @@ class ReportItemListItem extends BaseActiveRecord
 					}
 				}
 				return null;
+
+			case 'list':
+				$result = array();
+
+				foreach ($dataItem[$this->data_field] as $dataListItem) {
+					$dataListItems = array();
+
+					foreach ($this->listItems as $listItem) {
+						$dataListItems[$listItem->data_field] = $listItem->compute($dataListItem, $inputs);
+					}
+
+					$result[] = $dataListItems;
+				}
+
+				return $result;
+
+			case 'element_relation':
+				return $element_related_item->{$this->data_field};
 		}
+
+		throw new Exception("Unhandled item data type: {$this->dataType->name}");
 	}
 }

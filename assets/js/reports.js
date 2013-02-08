@@ -1,6 +1,6 @@
 function Reports_AddDiagnosis(disorder_id, name) {
-	$('#Reports_diagnoses').append('<tr><td>'+name+'</td><td><input type="checkbox" name="principal[]" value="'+disorder_id+'" /></td><td><a href="#" class="small removeDiagnosis" rel="'+disorder_id+'"><strong>Remove</strong></a></td></tr>');
-	$('#selected_diagnoses').append('<input type="hidden" name="selected_diagnoses[]" value="'+disorder_id+'" />');
+	$('#Reports_diagnoses').append('<tr><td>'+name+'</td><td><input type="checkbox" class="principalCheckbox" name="principal[]" value="'+disorder_id+'" /></td><td><a href="#" class="small removeDiagnosis" rel="'+disorder_id+'"><strong>Remove</strong></a></td></tr>');
+	$('#selected_diagnoses').append('<input type="hidden" name="secondary[]" value="'+disorder_id+'" />');
 }
 
 function selectSort(a, b) {
@@ -21,6 +21,21 @@ function sort_selectbox(element) {
 }
 
 $(document).ready(function() {
+	$('input.principalCheckbox').die('click').live('click',function() {
+		var v = $(this).val();
+		var checked = $(this).is(':checked');
+
+		$('#selected_diagnoses').children('input').map(function() {
+			if ($(this).val() == v) {
+				if (checked) {
+					$(this).attr('disabled','disabled');
+				} else {
+					$(this).removeAttr('disabled');
+				}
+			}
+		});
+	});
+
 	$('a.removeDiagnosis').die('click').live('click',function() {
 		var disorder_id = $(this).attr('rel');
 

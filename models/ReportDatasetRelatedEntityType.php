@@ -18,18 +18,18 @@
  */
 
 /**
- * This is the model class for table "report_input".
+ * This is the model class for table "report_dataset_related_entity_type".
  *
- * The followings are the available columns in table 'report_input':
+ * The followings are the available columns in table 'report_dataset_related_entity_type':
  * @property integer $id
  * @property string $name
  *
  */
-class ReportInput extends BaseActiveRecord
+class ReportDatasetRelatedEntityType extends BaseActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
-	 * @return ReportInput the static model class
+	 * @return ReportDatasetRelatedEntityType the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -41,7 +41,7 @@ class ReportInput extends BaseActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'report_input';
+		return 'report_dataset_related_entity_type';
 	}
 
 	/**
@@ -66,9 +66,6 @@ class ReportInput extends BaseActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'dataType' => array(self::BELONGS_TO, 'ReportInputDataType', 'data_type_id'),
-			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
-			'relatedEntity' => array(self::BELONGS_TO, 'ReportDatasetRelatedEntity', 'related_entity_id'),
 		);
 	}
 
@@ -98,47 +95,5 @@ class ReportInput extends BaseActiveRecord
 		return new CActiveDataProvider(get_class($this), array(
 			'criteria'=>$criteria,
 		));
-	}
-
-	public function getDefaultValue() {
-		if ($this->dataType->name == 'date') {
-			if ($this->default_value == 'now') {
-				return date('j M Y');
-			} else if ($this->default_value) {
-				return date('j M Y',strtotime($this->default_value));
-			}
-			return '';
-		}
-
-		return $this->default_value;
-	}
-
-	public function getPostedValue() {
-		switch ($this->dataType->name) {
-			case 'number':
-				return @$_REQUEST[$this->name];
-
-			case 'dropdown_from_table':
-				$model = $this->data_type_param1; return $model::model()->findByPk(@$_REQUEST[$this->name])->reportDisplay;
-
-			case 'date':
-				return @$_REQUEST[$this->name];
-
-			case 'diagnoses':
-				$disorders = '';
-
-				foreach (Disorder::model()->findAll('id in ('.implode(',',@$_REQUEST['selected_diagnoses']).')') as $i => $disorder) {
-					if ($i) $disorders.=', ';
-					$disorders .= $disorder->term;
-				}
-
-				return '"'.$disorders.'"';
-
-			case 'checkbox':
-			case 'checkbox_optional_match':
-				return @$_REQUEST[$this->name] ? 'Yes' : 'No';
-		}
-
-		throw new Exception("Unhandled data input type: {$this->dataType->name}");
 	}
 }

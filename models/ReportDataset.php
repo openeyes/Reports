@@ -70,6 +70,7 @@ class ReportDataset extends BaseActiveRecord
 			'elements' => array(self::HAS_MANY, 'ReportDatasetElement', 'dataset_id'),
 			'inputs' => array(self::HAS_MANY, 'ReportInput', 'dataset_id'),
 			'items' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'order' => 'display_order'),
+			'displayItems' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'condition' => 'display = 1', 'order' => 'display_order'),
 		);
 	}
 
@@ -151,6 +152,20 @@ class ReportDataset extends BaseActiveRecord
 		return $item;
 	}
 
+	public function addRelatedEntity($name) {
+		if (!$entity = ReportDatasetRelatedEntity::model()->find('dataset_id=? and name=?',array($this->id,$name))) {
+			$entity = new ReportDatasetRelatedEntity;
+			$entity->dataset_id = $this->id;
+			$entity->name = $name;
+
+			if (!$entity->save()) {
+				throw new Exception("Unable to save related entity: ".print_r($entity->getErrors(),true));
+			}
+		}
+
+		return $entity;
+	}
+
 	public function compute($inputs) {
 		$method = "compute_{$this->report->queryType->name}";
 
@@ -193,7 +208,7 @@ class ReportDataset extends BaseActiveRecord
 			$params['whereOr'][] = $whereOrItem;
 		}
 
-		$select = array('e.datetime,p.dob,p.hos_num,c.first_name,c.last_name');
+		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
 		$where = "e.deleted = ? and ep.deleted = ?";
 		$whereParams = array(0,0);
 
@@ -253,5 +268,79 @@ class ReportDataset extends BaseActiveRecord
 		}
 
 		return $data->select(implode(',',$select))->where($where,$whereParams)->queryAll();
+	}
+
+	public function compute_Patients($inputs) {
+		$select = array("p.id as patient_id, p.hos_num, c.first_name, c.last_name");
+		$where = '';
+
+		$command = Yii::app()->db->createCommand()
+			->from('patient p')
+			->join("contact c","c.parent_class = 'Patient' and c.parent_id = p.id");
+
+		foreach ($this->inputs as $input) {
+			if ($input->relatedEntity) {
+				foreach ($input->relatedEntity->tables as $table) {
+					if (isset($inputs[$table->type->name])) {
+						foreach ($inputs[$table->type->name] as $i => $inputItem) {
+							$command->join("{$table->table_name} {$table->type->name}_$i","{$table->type->name}_$i.{$table->table_related_field} = p.id");
+							$select[] = "{$table->type->name}_$i.{$table->table_query_field} as {$table->type->name}_query_$i";
+							$select[] = "{$table->type->name}_$i.{$table->table_date_field} as {$table->type->name}_date_$i";
+							if ($where) $where .= ' and ';
+							$where .= "{$table->type->name}_$i.{$table->table_query_field} = $inputItem";
+
+							foreach ($table->relations as $j => $relation) {
+								$command->join("{$relation->related_table} {$table->type->name}_relation_{$i}_$j","{$table->type->name}_$i.{$relation->local_field} = {$table->type->name}_relation_{$i}_$j.id");
+								$select[] = "{$table->type->name}_relation_{$i}_$j.{$relation->select_field} as {$table->type->name}_relation_{$i}_{$relation->select_field_as}";
+							}
+						}
+					}
+				}
+			}
+		}
+
+		$results = array();
+
+		foreach ($command->select(implode(',',$select))->where($where)->queryAll() as $row) {
+			$dates = array();
+
+			foreach ($row as $key => $value) {
+				if (preg_match('/_date_([0-9]+)$/',$key,$m)) {
+					$dates[strtotime($value)] = $value;
+				}
+			}
+
+			ksort($dates);
+			$row['date'] = array_shift($dates);
+
+			foreach ($this->inputs as $input) {
+				if ($input->relatedEntity) {
+					$row[$input->relatedEntity->name] = array();
+
+					foreach ($input->relatedEntity->types as $type) {
+						$i=0;
+						while (1) {
+							$relatedItem = array();
+
+							foreach ($row as $key => $value) {
+								if (preg_match('/^'.$type->name.'_relation_'.$i.'_(.*)$/',$key,$m)) {
+									$relatedItem[$m[1]] = $value;
+								}
+							}
+
+							if (empty($relatedItem)) break;
+
+							$row[$input->relatedEntity->name][] = $relatedItem;
+
+							$i++;
+						}
+					}
+				}
+			}
+
+			$results[] = $row;
+		}
+
+		return $results;
 	}
 }

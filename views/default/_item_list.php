@@ -6,7 +6,7 @@
 			<table class="reportData">
 				<thead>
 					<tr>
-						<?php foreach ($item->listItems as $list_item) {?>
+						<?php foreach ($item->displayListItems as $list_item) {?>
 							<th><?php echo $list_item->name?></th>
 						<?php }?>
 					</tr>
@@ -14,7 +14,7 @@
 				<tbody>
 					<?php foreach ($data[$item->data_field] as $i => $data_item) {?>
 						<tr>
-							<?php foreach ($item->listItems as $list_item) {?>
+							<?php foreach ($item->displayListItems as $list_item) {?>
 								<td>
 									<?php if (is_array($data_item[$list_item->data_field])) {?>
 										<?php foreach ($data_item[$list_item->data_field] as $i => $data_list_item) {

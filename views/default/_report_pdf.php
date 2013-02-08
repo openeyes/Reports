@@ -6,12 +6,14 @@
 <h3>Report generated on <?php echo date('j M Y')?> at <?php echo date('H:i')?></h3>
 <div style="height: 2em;"></div>
 <table class="reportSummary">
-	<?php foreach ($this->report->inputs as $input) {
-		$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
+	<?php foreach ($this->report->datasets as $dataset) {
+		foreach ($dataset->inputs as $input) {
+			$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
+		}
 	}?>
 	<div style="height: 2em;"></div>
-	<?php foreach ($this->report->items as $item) {
-		if ($item->display) {
+	<?php foreach ($this->report->datasets as $dataset) {
+		foreach ($dataset->displayItems as $item) {
 			$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
 		}
 	}?>

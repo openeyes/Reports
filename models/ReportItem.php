@@ -68,6 +68,7 @@ class ReportItem extends BaseActiveRecord
 		return array(
 			'dataType' => array(self::BELONGS_TO, 'ReportItemDataType', 'data_type_id'),
 			'listItems' => array(self::HAS_MANY, 'ReportItemListItem', 'item_id', 'order'=>'display_order'),
+			'displayListItems' => array(self::HAS_MANY, 'ReportItemListItem', 'item_id', 'order'=>'display_order', 'condition'=>'display=1'),
 			'dataset' => array(self::BELONGS_TO, 'ReportDataset', 'dataset_id'),
 			'pairFields' => array(self::HAS_MANY, 'ReportItemPairField', 'item_id'),
 			'element' => array(self::BELONGS_TO, 'ReportDatasetElement', 'element_id'),
