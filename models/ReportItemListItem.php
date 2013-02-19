@@ -174,6 +174,9 @@ class ReportItemListItem extends BaseActiveRecord
 			case 'number':
 				return $dataItem[$this->data_field];
 
+			case 'link':
+				return '<a href="'.$dataItem[$this->data_field].'">'.$dataItem[$this->data_field].'</a>';
+
 			case 'list_from_element_relation':
 				$model = $this->element->elementType->class_name;
 				$listItems = array();

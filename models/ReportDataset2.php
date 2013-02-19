@@ -68,7 +68,7 @@ class ReportDataset extends BaseActiveRecord
 		return array(
 			'report' => array(self::BELONGS_TO, 'Report', 'report_id'),
 			'elements' => array(self::HAS_MANY, 'ReportDatasetElement', 'dataset_id'),
-			'inputs' => array(self::HAS_MANY, 'ReportInput', 'dataset_id', 'order' => 'display_order'),
+			'inputs' => array(self::HAS_MANY, 'ReportInput', 'dataset_id'),
 			'items' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'order' => 'display_order'),
 			'displayItems' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'condition' => 'display = 1', 'order' => 'display_order'),
 		);
@@ -179,105 +179,7 @@ class ReportDataset extends BaseActiveRecord
 	public function compute_Letters($inputs) {
 		$params = array();
 
-		$et_correspondence = EventType::model()->find('class_name=?',array('OphCoCorrespondence'));
-		$et_legacyletters = EventType::model()->find('class_name=?',array('OphLeEpatientletter'));
-
-		$where_clauses = array();
-		$where_params = array();
-		$where_operator = ($inputs['search_method'] == 1 ? ' and ' : ' or ');
-
-		$type_clauses = array();
-
-		$data = Yii::app()->db->createCommand()
-			->select("l.id as lid, l2.id as l2id, l.event_id, l2.event_id as l2_event_id, c.first_name, c.last_name, p.dob, p.hos_num, e.datetime, ep.patient_id")
-			->from("event e")
-			->join("episode ep","e.episode_id = ep.id")
-			->join("patient p","ep.patient_id = p.id")
-			->join("contact c","c.parent_class = 'Patient' and c.parent_id = p.id");
-
-		if (@$inputs['match_correspondence']) {
-			$data->leftJoin("et_ophcocorrespondence_letter l","l.event_id = e.id");
-			$clause = "(l.id is not null and e.event_type_id = :correspondenceID and ( ";
-			$where_params[':correspondenceID'] = $et_correspondence->id;
-
-			$where_clause = array();
-
-			foreach ($inputs['phrases'] as $i => $phrase) {
-				$where_params[':body'.$i] = '%'.strtolower($phrase).'%';
-				if ($i >0) {
-					$clause .= $where_operator;
-				}
-				$clause .= " lower(l.body) like :body$i";
-			}
-
-			$clause .= " )";
-
-			if (@$inputs['author_id']) {
-				$clause .= " and l.created_user_id = :authorID";
-				$where_params[':authorID'] = $inputs['author_id'];
-			}
-
-			$where_clauses[] = $clause." )";
-		}
-
-		if (@$inputs['match_legacyletters']) {
-			$data->leftJoin("et_ophleepatientletter_epatientletter l2","l2.event_id = e.id");
-			$clause = "(l2.id is not null and e.event_type_id = :legacyID and ( ";
-			$where_params[':legacyID'] = $et_legacyletters->id;
-
-			$where_clause = array();
-
-			foreach ($inputs['phrases'] as $i => $phrase) {
-				$where_params[':lbody'.$i] = '%'.strtolower($phrase).'%';
-				if ($i >0) {
-					$clause .= $where_operator;
-				}
-				$clause .= " lower(l2.letter_html) like :lbody$i";
-			}
-
-			$clause .= ') ';
-
-			if (@$inputs['author_id']) {
-				if (!$author = User::model()->findByPk($inputs['author_id'])) {
-					throw new Exception("User not found: {$inputs['author_id']}");
-				}
-
-				$clause .= " and lower(l2.letter_html) like :authorName";
-				$where_params[':authorName'] = '%'.strtolower($author->fullName).'%';
-			}
-
-			$where_clauses[] = $clause." )";
-		}
-
-		$where = " ( ".implode(' or ',$where_clauses)." ) ";
-
-		if (@$inputs['date_from']) {
-			$where .= " and e.datetime >= :dateFrom";
-			$where_params[':dateFrom'] = date('Y-m-d',strtotime($inputs['date_from']))." 00:00:00";
-		}
-		if (@$inputs['date_to']) {
-			$where .= " and e.datetime <= :dateTo";
-			$where_params[':dateTo'] = date('Y-m-d',strtotime($inputs['date_to']))." 23:59:59";
-		}
-
-		$results = array();
-
-		foreach ($data->where($where,$where_params)
-			->order("e.datetime asc")
-			->queryAll() as $i => $row) {
-
-			if ($row['lid']) {
-				$row['type'] = 'Correspondence';
-				$row['link'] = 'http://openeyes.moorfields.nhs.uk/OphCoCorrespondence/default/view/'.$row['event_id'];
-			} else {
-				$row['type'] = 'Legacy letter';
-				$row['link'] = 'http://openeyes.moorfields.nhs.uk/OphLeEpatientletter/default/view/'.$row['l2_event_id'];
-			}
-
-			$results[] = $row;
-		}
-
-		return $results;
+		
 	}
 
 	public function compute_Events($inputs) {

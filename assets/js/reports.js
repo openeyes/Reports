@@ -60,4 +60,14 @@ $(document).ready(function() {
 
 		return false;
 	});
+
+	$('div.multiStringAdd button').click(function() {
+		var container = $(this).parent('div').prev('div');
+		container.append('<div class="stringInput"><input type="text" name="phrases[]" id="phrases" /> <a class="removeString" href="#">Remove</a></div>');
+	});
+
+	$('a.removeString').die('click').live('click',function() {
+		$(this).parent('div').remove();
+		return false;
+	});
 });

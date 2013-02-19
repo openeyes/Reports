@@ -72,3 +72,5 @@ div.reportSummary { width: 1024px; }
 .reportData td { padding-top: 10px; padding-right: 10px; }
 
 #errors { width: 76.8em; margin-top: 2em; }
+.multiStringAdd { margin-top: 8px; }
+.stringInput { margin-bottom: 5px; }
