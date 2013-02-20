@@ -120,7 +120,11 @@ class ReportInput extends BaseActiveRecord
 				return @$_REQUEST[$this->name];
 
 			case 'dropdown_from_table':
-				$model = $this->data_type_param1; return $model::model()->findByPk(@$_REQUEST[$this->name])->reportDisplay;
+				$model = $this->data_type_param1;
+				if ($object = $model::model()->findByPk(@$_REQUEST[$this->name])) {
+					return $model::model()->findByPk(@$_REQUEST[$this->name])->reportDisplay;
+				}
+				return '-';
 
 			case 'date':
 				return @$_REQUEST[$this->name];
@@ -138,6 +142,10 @@ class ReportInput extends BaseActiveRecord
 			case 'checkbox':
 			case 'checkbox_optional_match':
 				return @$_REQUEST[$this->name] ? 'Yes' : 'No';
+			case 'multi_string':
+				return implode("\n",@$_REQUEST[$this->name]);
+			case 'radio_buttons':
+				return ReportInputOption::model()->findByPk(@$_REQUEST[$this->name])->name;
 		}
 
 		throw new Exception("Unhandled data input type: {$this->dataType->name}");
