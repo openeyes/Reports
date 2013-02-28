@@ -44,12 +44,10 @@
 			}
 			return false;
 		});
-		$('#downloadReport').click(function() {
-			if (!$(this).hasClass('disabled')) {
-				disableButtons();
-				$('#downloadForm').submit();
-				enableButtons();
-			}
+		handleButton($('#downloadReport'),function() {
+			disableButtons();
+			$('#downloadForm').submit();
+			enableButtons();
 		});
 	});
 </script>

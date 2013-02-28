@@ -23,35 +23,33 @@
 </div>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('#et_run').click(function() {
-			if (!$(this).hasClass('disabled')) {
-				$('div.reportSummary').hide();
-				disableButtons();
+		handleButton($('#et_run'),function(e) {
+			$('div.reportSummary').hide();
 
-				$.ajax({
-					'type': 'POST',
-					'data': $('#reportData').serialize(),
-					'url': baseUrl+'/Reports/default/validate/<?php echo $this->report->id?>',
-					'success': function(html) {
-						if (html.length == 0) {
-							$('#errors').html('');
-							$.ajax({
-								'type': 'POST',
-								'data': $('#reportData').serialize(),
-								'url': baseUrl+'/Reports/default/execute/<?php echo $this->report->id?>',
-								'success': function(html) {
-									enableButtons();
-									$('div.reportSummary').html(html).show();
-								}
-							});
-						} else {
-							$('#errors').html(html);
-							enableButtons();
-						}
+			$.ajax({
+				'type': 'POST',
+				'data': $('#reportData').serialize(),
+				'url': baseUrl+'/Reports/default/validate/<?php echo $this->report->id?>',
+				'success': function(html) {
+					if (html.length == 0) {
+						$('#errors').html('');
+						$.ajax({
+							'type': 'POST',
+							'data': $('#reportData').serialize(),
+							'url': baseUrl+'/Reports/default/execute/<?php echo $this->report->id?>',
+							'success': function(html) {
+								enableButtons();
+								$('div.reportSummary').html(html).show();
+							}
+						});
+					} else {
+						$('#errors').html(html);
+						enableButtons();
 					}
-				});
-			}
-			return false;
+				}
+			});
+
+			e.preventDefault();
 		});
 	});
 </script>
