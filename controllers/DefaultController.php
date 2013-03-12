@@ -4,6 +4,7 @@ class DefaultController extends BaseController {
 	public $assetPath;
 	public $title;
 	public $report;
+	public $jsVars = array();
 
 	public function filters()
 	{
@@ -53,6 +54,8 @@ class DefaultController extends BaseController {
 			$criteria->order = 'display_order asc';
 			$this->report = Report::model()->find($criteria);
 		}
+
+		$this->jsVars['OE_report_id'] = $this->report ? $this->report->id : null;
 	}
 
 	public function actionIndex() {
@@ -64,6 +67,7 @@ class DefaultController extends BaseController {
 		if (!$this->report = Report::model()->findByPk($id)) {
 			throw new Exception("Report not found: $id");
 		}
+		$this->jsVars['OE_report_id'] = $this->report->id;
 		$this->render('index');
 	}
 
@@ -128,5 +132,13 @@ class DefaultController extends BaseController {
 
 	public function getCommonOphthalmicDisorders() {
 		return CommonOphthalmicDisorder::getList(Firm::model()->findByPk($this->selectedFirmId));
+	}
+
+	protected function beforeRender($view) {
+		foreach ($this->jsVars as $key => $value) {
+			$value = CJavaScript::encode($value);
+			Yii::app()->getClientScript()->registerScript('scr_'.$key, "$key = $value;",CClientScript::POS_READY);
+		}
+		return parent::beforeRender($view);
 	}
 }

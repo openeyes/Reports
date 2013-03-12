@@ -2,13 +2,15 @@
 	<h4><strong>OpenEyes Reports</strong></h4>
 	<form id="reportData">
 		<table class="reportInputs">
-			<?php foreach ($this->report->datasets as $dataset) {
-				foreach ($dataset->inputs as $input) {?>
-					<tr>
-						<td><?php echo $input->description?>:</td>
-						<td><?php $this->renderPartial('_input_field_'.$input->dataType->name,array('input'=>$input))?></td>
-					</tr>
-				<?php }
+			<?php if ($this->report) {?>
+				<?php foreach ($this->report->datasets as $dataset) {
+					foreach ($dataset->inputs as $input) {?>
+						<tr>
+							<td><?php echo $input->description?>:</td>
+							<td><?php $this->renderPartial('_input_field_'.$input->dataType->name,array('input'=>$input))?></td>
+						</tr>
+					<?php }
+				}
 			}?>
 		</table>
 	</form>
@@ -29,14 +31,14 @@
 			$.ajax({
 				'type': 'POST',
 				'data': $('#reportData').serialize(),
-				'url': baseUrl+'/Reports/default/validate/<?php echo $this->report->id?>',
+				'url': baseUrl+'/Reports/default/validate/'+OE_report_id,
 				'success': function(html) {
 					if (html.length == 0) {
 						$('#errors').html('');
 						$.ajax({
 							'type': 'POST',
 							'data': $('#reportData').serialize(),
-							'url': baseUrl+'/Reports/default/execute/<?php echo $this->report->id?>',
+							'url': baseUrl+'/Reports/default/execute/'+OE_report_id,
 							'success': function(html) {
 								enableButtons();
 								$('div.reportSummary').html(html).show();
