@@ -21,6 +21,11 @@ class Report_OperationsCommand extends CConsoleCommand {
 	public function run($args) {
 		Yii::import('application.modules.Reports.models.*');
 
+		$opnote = EventType::model()->find('class_name=?',array('OphTrOperationnote'));
+		$element_proclist = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementProcedureList'));
+		$element_surgeon = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementSurgeon'));
+		$element_cataract = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementCataract'));
+
 		if (!$query_type_events = ReportQueryType::model()->find('name=?',array('Events'))) {
 			$query_type_events = new ReportQueryType;
 			$query_type_events->name = 'Events';
