@@ -17,7 +17,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
  */
 
-class Report_DiagnosesCommand extends CConsoleCommand {
+class Report_PatientDiagnosesCommand extends CConsoleCommand {
 	public function run($args) {
 		Yii::import('application.modules.Reports.models.*');
 
