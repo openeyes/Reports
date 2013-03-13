@@ -307,9 +307,13 @@ class ReportDataset extends BaseActiveRecord
 		foreach ($whereOr as $or_id => $fields) {
 			$whereOrItem = array();
 			foreach ($fields as $field => $value) {
-				$whereOrItem['fields'][$field] = $value;
+				if ($value) {
+					$whereOrItem['fields'][$field] = $value;
+				}
 			}
-			$params['whereOr'][] = $whereOrItem;
+			if (!empty($whereOrItem)) {
+				$params['whereOr'][] = $whereOrItem;
+			}
 		}
 
 		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');

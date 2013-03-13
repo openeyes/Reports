@@ -212,7 +212,7 @@ class Report extends BaseActiveRecord
 				$results[$item->data_field] = $item->compute($data, $inputs);
 			}
 		}
-		
+
 		return $results;
 	}
 
