@@ -1,6 +1,6 @@
 <div class="report curvybox white">
 	<div class="reportInputs">
-		<h3 class="georgia">OpenEyes Reports</h4>
+		<h3 class="georgia"><?php echo $this->report->name?></h4>
 		<form id="reportData">
 			<table class="subtle white nodivider showrows valignmiddle">
 				<colgroup>
