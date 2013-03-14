@@ -138,6 +138,8 @@ class ReportInput extends BaseActiveRecord
 			case 'checkbox':
 			case 'checkbox_optional_match':
 				return @$_REQUEST[$this->name] ? 'Yes' : 'No';
+			case 'multi_string':
+				return implode(', ',@$_REQUEST[$this->name]);
 		}
 
 		throw new Exception("Unhandled data input type: {$this->dataType->name}");
