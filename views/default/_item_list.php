@@ -3,7 +3,7 @@
 		<?php if (empty($data[$item->data_field])) {?>
 			None
 		<?php }else{?>
-			<table class="reportData">
+			<table class="grid reduceheight">
 				<thead>
 					<tr>
 						<?php foreach ($item->displayListItems as $list_item) {?>
@@ -13,7 +13,7 @@
 				</thead>
 				<tbody>
 					<?php foreach ($data[$item->data_field] as $i => $data_item) {?>
-						<tr>
+						<tr class="<?php if ($i%2 == 0 ){?>even<?php }else{?>odd<?php }?>">
 							<?php foreach ($item->displayListItems as $list_item) {?>
 								<td>
 									<?php if (is_array($data_item[$list_item->data_field])) {?>

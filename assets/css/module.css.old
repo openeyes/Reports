@@ -1,0 +1,76 @@
+#content .fullWidth > #reports_sidebar { float:left; } /* expands for summary */
+#reports_sidebar > .report, .report .report_nav { -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; }
+#reports_sidebar > .report { margin-top: 2px; margin-left: 4px; }
+/* Specialty group header */
+#reports_sidebar > .report_title { color:#504c3c; background: #eaddaf; padding:5px 2px 5px 5px; -webkit-border-top-right-radius: 3px;  -moz-border-radius-topright: 3px; ; border-top-right-radius: 3px; }
+/* container */
+#reports_sidebar > .episode.open   { background: #eaddaf; margin-bottom:5px;}
+#reports_sidebar > .episode.closed { background: #dad3ba; margin-bottom:5px; }
+
+.report .report_nav { width:194px; background: #fff; float:left; padding:5px 1px 10px 0px; margin:3px 1px 3px 0; position:relative; }
+.report .report_nav .start_date { margin-left:5px;}
+.report .report_nav h4 { margin:5px 2px 3px 0; }
+.report .report_nav h4.title_summary { display:block; color:#000; padding:3px 0 15px 5px; border:none; -webkit-border-top-right-radius: 3px; -webkit-border-bottom-right-radius: 3px; -moz-border-radius-topright: 3px; -moz-border-radius-bottomright: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; }
+.report .report_nav h4 .report_text { float: left; font-size: 8pt; }
+.report .report_nav h4 .title_summary.viewing { color:#fff; background:#aaa url(../../../../img/_elements/icons/event/event_open_arrow.png) bottom right no-repeat; }
+.report .report_nav h4 a.title_summary { background:#fff; }
+.report .report_nav a:hover.title_summary   { color:#fff; background-color:#3665ff; background-image: url(../../../../img/_elements/icons/event/event_open_arrow.png); }
+.report .report_nav a:active.title_summary  { color:#fff; background-color:#315be6; }
+.report .report_nav .mini_icons { padding:2px 5px 2px 5px; display: none; }
+.report .report_nav .mini_icons a {border:none;}
+.report .report_nav .mini_icons img { width:12px; height:12px; margin-right:3px; }
+.report .legacy { background: #eee !important; }
+.report ul.reports { list-style-type: none; padding:4px 0 0 0; margin:0 0 0 5px; border-top:1px dotted #ccc; }
+.report ul.reports li { display:block; position: relative; height:19px; margin:0 2px 4px 0; }
+.report ul.reports li img { vertical-align:middle; margin-left:0; margin-right:0; }
+.report ul.reports li .type { display:inline-block; width:35px; background:transparent url(../../../../img/_elements/icons/event/status/quicklook.png) top right no-repeat; }
+.report ul.reports li .type:hover { background-image:url(../../../../img/_elements/icons/event/status/quicklook-hover.png);  }
+.report ul.reports li .type.statusflag { background:transparent url(../../../../img/_elements/icons/event/status/alert.png) top right no-repeat; }
+.report ul.reports li .type.statusflag:hover { background-image:url(../../../../img/_elements/icons/event/status/alert-hover.png); }
+.report ul.reports .date { position:relative; top:2px; margin-left:5px; padding-left:2px; border-left:1px dotted #fff; }
+.report ul.reports .date .day { display:inline-block; width:20px; text-align:right; margin-right:5px;  }
+.report ul.reports .date .mth { display:inline-block; width:28px; }
+.report ul.reports li a { display:block; height:inherit; margin-left:-5px; padding-left:8px; padding-right: 10px; -webkit-border-top-right-radius: 6px; -webkit-border-bottom-right-radius: 6px; -moz-border-radius-topright: 6px; -moz-border-radius-bottomright: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px;}
+.report ul.reports li a:hover   { border-bottom: none; background: #3665ff url(../../../../img/_elements/icons/event/event_open_arrow.png) right center no-repeat; color:#fff; }
+.report ul.reports li a:active  { border-bottom: none; background: #315be6; color:#fff; }
+
+/* Quicklook ... meta overview of Event */
+.report ul.reports li .quicklook { display:none; position:absolute; width:200px; left:140px; top:-5px; z-index:1; padding:5px; border:1px solid #3665ff; background:#fff; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; -moz-box-shadow: 2px 2px 2px 0 #999;  -webkit-box-shadow: 2px 2px 2px 0 #999;  box-shadow: 2px 2px 2px 0 #999;  }
+.report ul.reports li .quicklook .event { display:block; font-weight: bold; padding-left:5px; padding-bottom:3px; }
+.report ul.reports li .quicklook .description  { display:block; font-size:11px; padding-left:5px}
+.report ul.reports li .quicklook .issue { display:block; font-size:11px; color:#600; padding:5px 5px 5px 20px; margin-top:7px; background:#fdf2e5 url(../../../../img/_elements/icons/event/status/alert.png) top left no-repeat;}
+
+.report_nav a.sprite { display:inline-block; padding:4px 5px 2px 5px; background: #fff; -webkit-border-bottom-left-radius: 3px; -webkit-border-bottom-right-radius: 3px; -moz-border-radius-bottomleft: 3px; -moz-border-radius-bottomright: 3px; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
+.report_nav .aBtn { position:absolute; top:0; right:2px;}
+.report_nav .aBtn > a:hover { border:none; background:#3665ff;}
+.report_nav .aBtn > a:active { border:none; background:#2546b1; }
+
+.report ul.reports li .viewing { display:block; height:inherit; background: #aaa url(../../../../img/_elements/icons/event/event_open_arrow.png) right center no-repeat; color:#fff; margin-left:-5px; padding-left:8px; padding-right: 10px; -webkit-border-top-right-radius: 6px; -webkit-border-bottom-right-radius: 6px; -moz-border-radius-topright: 6px; -moz-border-radius-bottomright: 6px; border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+
+#content .fullWidth > #report_display  { float:right; max-width: 1018px; min-height:200px; overflow: hidden; margin-top: 5px; margin-right: 7px; }
+
+.ReportGraph { margin-top: 20px; width: 1029px; margin-left: auto; margin-right: auto; margin-right: 20px; }
+.bullet { font: 10px sans-serif; }
+.bullet .marker { stroke: #000; stroke-width: 2px; }
+.bullet .markertext { float: left; font-weight: bold; }
+.bullet .tick line { stroke: #666; stroke-width: .5px; }
+.bullet .range.s0 { fill: #eee; }
+.bullet .range.s1 { fill: #ddd; }
+.bullet .range.s2 { fill: #ccc; }
+.bullet .measure.s0 { fill: lightsteelblue; }
+.bullet .measure.s1 { fill: steelblue; }
+.bullet .title { font-size: 14px; font-weight: bold; }
+.bullet .subtitle { fill: #999; }
+
+div.reportInputs { width: 1024px; }
+.reportInputs td { padding-top: 10px; padding-right: 10px; }
+div.reportSummary { width: 1024px; }
+.reportSummary td { padding-top: 10px; padding-right: 10px; }
+.reportSummary th { padding-top: 2px; text-align: left; width: 25em; }
+
+.reportData th { padding-top: 10px; text-align: left; padding-right: 14px;}
+.reportData td { padding-top: 10px; padding-right: 10px; }
+
+#errors { width: 76.8em; margin-top: 2em; }
+.multiStringAdd { margin-top: 8px; }
+.stringInput { margin-bottom: 5px; }

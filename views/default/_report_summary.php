@@ -1,21 +1,36 @@
-<h4><strong><?php echo $this->report->name?></strong></h4>
+<h3 class="georgia"><?php echo $this->report->name?></h3>
 <form id="printReportForm" name="printReportForm" method="post" action="<?php echo Yii::app()->createUrl("/Reports/default/print/".$this->report->id)?>">
 	<?php echo $this->renderPartial('_report_post_data')?>
 </form>
 <form id="downloadForm" name="downloadForm" method="post" action="<?php echo Yii::app()->createUrl("/Reports/default/download/".$this->report->id)?>">
 	<?php echo $this->renderPartial('_report_post_data')?>
 </form>
-<table class="reportSummary">
-	<?php foreach ($this->report->datasets as $dataset) {
-		foreach ($dataset->inputs as $input) {
-			$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
-		}
-	}
+<table class="subtle grey smalltext reduceheight">
+	<colgroup>
+		<col width="35%"></col>
+	</colgroup>
+	<thead>
+		<tr>
+			<th colspan="2">Search Details:</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach ($this->report->datasets as $dataset) {
+			foreach ($dataset->inputs as $input) {
+				$this->renderPartial('_input_view_'.$input->dataType->name,array('input'=>$input));
+			}
+		}?>
+	</tbody>
+</table>
+<table class="grid reduceheight">
+	<tbody>
+	<?php
 	foreach ($this->report->datasets as $dataset) {
 		foreach ($dataset->displayItems as $item) {
 			$this->renderPartial('_item_'.$item->dataType->name,array('item'=>$item,'data'=>$data));
 		}
 	}?>
+	</tbody>
 </table>
 <?php foreach ($this->report->graphs as $i => $graph) {?>
 	<div id="graph<?php echo $i?>" class="ReportGraph whiteBox"></div>
@@ -24,7 +39,7 @@
 			"id": "graph<?php echo $i?>",
 			"initialData": <?php echo json_encode($graph->getInitialData($data))?>,
 			"percentage": true,
-			"width": 730,
+			"width": 630,
 		});
 	</script>
 <?php }?>

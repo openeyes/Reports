@@ -89,38 +89,6 @@
 				<?php $this->renderPartial('reports_sidebar')?>
 				<div id="event_display">
 					<?php $this->renderPartial('add_new_event',array('eventTypes'=>$eventTypes))?>
-					<div class="display_actions"<?php if (!$this->title || count($episodes)<1 || !@$current_episode){?> style="display: none;"<?php }?>>
-						<div class="display_mode"><?php echo $this->title?></div>
-					</div>
-					<?php if (is_object($this->event) || (count($episodes) >0 && @$current_episode)) {?>
-						<?php if ($module == 'OphTrOperation') {?>
-							<div id="event_content" class="watermarkBox" style="background:#fafafa url(<?php echo Yii::app()->createUrl('img/_elements/icons/event/watermark/treatment_operation.png')?>) top left repeat-y;">
-						<?php } else {?>
-							<div id="event_content" class="watermarkBox" style="background:#fafafa url(<?php echo $assetpath?>watermark.png) top left repeat-y;">
-						<?php }?>
-					<?php }?>
-						<?php
-						if (isset($this->event)) {
-							$this->renderPartial(
-								"/clinical/".$event_template_name,
-								array(
-									'elements' => $elements,
-									'site' => $site
-								), false, true
-							);
-						} else if ($current_episode) {
-							if ($this->editing) {
-								$this->renderPartial('/clinical/updateEpisode',
-									array('episode' => $current_episode, 'error' => $error)
-								);
-							} else {
-								$this->renderPartial('/clinical/episodeSummary',
-									array('episode' => $current_episode)
-								);
-							}
-						}
-						?>
-					</div>
 					<div class="colorband category_treatment"<?php if(!$this->title){ ?> style="display: none;"<?php } ?>></div>
 					<div id="display_actions_footer" class="display_actions footer"<?php if (!$this->title){?> style="display: none;"<?php }?>>
 					</div>

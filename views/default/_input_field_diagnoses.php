@@ -1,4 +1,4 @@
-<div class="whiteBox forClinicians" style="width: 69em;">
+<div class="whiteBox forClinicians" style="width: 33.5em;">
 	<div class="data_row">
 		<table class="subtleWhite">
 			<thead>
