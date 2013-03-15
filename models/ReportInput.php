@@ -120,7 +120,9 @@ class ReportInput extends BaseActiveRecord
 				return @$_REQUEST[$this->name];
 
 			case 'dropdown_from_table':
-				$model = $this->data_type_param1; return $model::model()->findByPk(@$_REQUEST[$this->name])->reportDisplay;
+				$model = $this->data_type_param1;
+				$model = $model::model()->findByPk(@$_REQUEST[$this->name]);
+				return $model ? $model->reportDisplay : '-';
 
 			case 'date':
 				return @$_REQUEST[$this->name];
@@ -138,8 +140,10 @@ class ReportInput extends BaseActiveRecord
 			case 'checkbox':
 			case 'checkbox_optional_match':
 				return @$_REQUEST[$this->name] ? 'Yes' : 'No';
+
 			case 'multi_string':
 				return implode(', ',@$_REQUEST[$this->name]);
+
 			case 'radio_buttons':
 				return ReportInputOption::model()->findByPk(@$_REQUEST[$this->name])->name;
 		}
