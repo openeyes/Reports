@@ -140,6 +140,8 @@ class ReportInput extends BaseActiveRecord
 				return @$_REQUEST[$this->name] ? 'Yes' : 'No';
 			case 'multi_string':
 				return implode(', ',@$_REQUEST[$this->name]);
+			case 'radio_buttons':
+				return ReportInputOption::model()->findByPk(@$_REQUEST[$this->name])->name;
 		}
 
 		throw new Exception("Unhandled data input type: {$this->dataType->name}");

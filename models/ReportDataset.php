@@ -195,7 +195,7 @@ class ReportDataset extends BaseActiveRecord
 			->join("patient p","ep.patient_id = p.id")
 			->join("contact c","c.parent_class = 'Patient' and c.parent_id = p.id");
 
-		if (@$inputs['match_correspondence']) {
+		if ($et_correspondence && @$inputs['match_correspondence']) {
 			$data->leftJoin("et_ophcocorrespondence_letter l","l.event_id = e.id");
 			$clause = "(l.id is not null and e.event_type_id = :correspondenceID and ( ";
 			$where_params[':correspondenceID'] = $et_correspondence->id;
@@ -220,7 +220,7 @@ class ReportDataset extends BaseActiveRecord
 			$where_clauses[] = $clause." )";
 		}
 
-		if (@$inputs['match_legacyletters']) {
+		if ($et_legacyletters && @$inputs['match_legacyletters']) {
 			$data->leftJoin("et_ophleepatientletter_epatientletter l2","l2.event_id = e.id");
 			$clause = "(l2.id is not null and e.event_type_id = :legacyID and ( ";
 			$where_params[':legacyID'] = $et_legacyletters->id;
