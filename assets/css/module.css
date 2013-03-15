@@ -1,6 +1,6 @@
 /* structure */
-#content .wrap.twocolumns .leftcolumn.narrow	{ width:260px; }
-#content .wrap.twocolumns .rightcolumn.wide 	{ width:920px; }
+#content .wrap.twocolumns .leftcolumn.narrow  { width:186px !important; }
+#content .wrap.twocolumns .rightcolumn.wide   { width:998px !important; }
 
 /* Reports */
 h2.reports { background:#666; color:#fff; border:1px solid #999; border-left:none; }
