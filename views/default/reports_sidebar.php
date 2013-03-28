@@ -14,3 +14,15 @@
 		</ul>
 	</div>
 <?php }?>
+<div class="reportsgroup curvybox">
+	<h4>Orbis</h4>
+	<ul>
+		<li<?php if (preg_match('/reportOperationSummary/',@$_SERVER['REQUEST_URI'])) {?> class="active"<?php }?>>
+			<?php if (preg_match('/reportOperationSummary/',@$_SERVER['REQUEST_URI'])) {?>
+				<span class="viewing">Operation summary</span>
+			<?php }else{?>
+				<?php echo CHtml::link("Operation summary",array('/Reports/default/reportOperationSummary'))?>
+			<?php }?>
+		</li>
+	</ul>
+</div>

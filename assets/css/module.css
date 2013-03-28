@@ -33,3 +33,16 @@ h2.reports { background:#666; color:#fff; border:1px solid #999; border-left:non
 .bullet .measure.s1 { fill: steelblue; }
 .bullet .title { font-size: 14px; font-weight: bold; }
 .bullet .subtitle { fill: #999; }
+
+table.operationSummary th { min-width: 10px !important; text-align: center !important; }
+table.operationSummary { font-size: 9px !important; font-weight: bold; }
+table.operationSummary td { text-align: center !important; padding: 4px !important; }
+table.operationSummary td.subspecialty { text-align: left !important; }
+table.operationSummary th.Local_Hospital { background-color: #e1f1f5 !important; border: 1px solid #bbb !important; }
+table.operationSummary th.Flying_Eye_Hospital { background-color: #fffc79 !important; border: 1px solid #bbb !important; }
+table.operationSummary th.blank { background-color: #fafafa !important; }
+/*table.operationSummary th.total { background-color: #f66 !important; }
+table.operationSummary td.total { background-color: #f66 !important; }
+table.operationSummary td.grandtotal { background-color: #f22 !important; color: #fff; }
+table.operationSummary th.grandtotal { background-color: #f22 !important; color: #fff; }
+*/
