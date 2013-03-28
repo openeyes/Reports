@@ -228,6 +228,7 @@ class DefaultController extends BaseController {
 			->queryAll() as $event) {
 
 			if (!$event['site']) {
+				if (!$event['site_id']) continue;
 				$event['site'] = Site::model()->findByPk($event['site_id'])->name;
 			}
 
