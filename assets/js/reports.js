@@ -3,6 +3,11 @@ function Reports_AddDiagnosis(disorder_id, name) {
 	$('#selected_diagnoses').append('<input type="hidden" name="secondary[]" value="'+disorder_id+'" />');
 }
 
+function Reports_AddProcedure(procedure_id, name) {
+	$('#Reports_procedures').append('<tr><td>'+name+'</td><td><a href="#" class="small removeProcedure" rel="'+procedure_id+'"><strong>Remove</strong></a></td></tr>');
+	$('#selected_procedures').append('<input type="hidden" name="procedure[]" value="'+procedure_id+'" />');
+}
+
 function selectSort(a, b) {
 	if (a.innerHTML == rootItem) {
 		return -1;
@@ -54,6 +59,31 @@ $(document).ready(function() {
 				if (html.length >0) {
 					$('#DiagnosisSelection_disorder_id').append(html);
 					sort_selectbox($('#DiagnosisSelection_disorder_id'));
+				}
+			}
+		});
+
+		return false;
+	});
+
+	$('a.removeProcedure').die('click').live('click',function() {
+		var procedure_id = $(this).attr('rel');
+
+		$('#selected_procedures').children('input').map(function() {
+			if ($(this).val() == procedure_id) {
+				$(this).remove();
+			}
+		});
+
+		$(this).parent().parent().remove();
+
+		$.ajax({
+			'type': 'GET',
+			'url': baseUrl+'/procedure/iscommonophthalmic/'+procedure_id,
+			'success': function(html) {
+				if (html.length >0) {
+					$('#ProcedureSelection_procedure_id').append(html);
+					sort_selectbox($('#ProcedureSelection_procedure_id'));
 				}
 			}
 		});

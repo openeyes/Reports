@@ -129,4 +129,18 @@ class ReportDatasetElement extends BaseActiveRecord
 
 		return $join;
 	}
+
+	public function addRelatedEntity($name) {
+		if (!$entity = ReportDatasetRelatedEntity::model()->find('element_id=? and name=?',array($this->id,$name))) {
+			$entity = new ReportDatasetRelatedEntity;
+			$entity->element_id = $this->id;
+			$entity->name = $name;
+
+			if (!$entity->save()) {
+				throw new Exception("Unable to save related entity: ".print_r($entity->getErrors(),true));
+			}
+		}
+
+		return $entity;
+	}
 }

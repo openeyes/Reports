@@ -71,6 +71,7 @@ class ReportDataset extends BaseActiveRecord
 			'inputs' => array(self::HAS_MANY, 'ReportInput', 'dataset_id', 'order' => 'display_order'),
 			'items' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'order' => 'display_order'),
 			'displayItems' => array(self::HAS_MANY, 'ReportItem', 'dataset_id', 'condition' => 'display = 1', 'order' => 'display_order'),
+			'relatedEntities' => array(self::HAS_MANY, 'ReportDatasetRelatedEntity', 'dataset_id'),
 		);
 	}
 
@@ -283,6 +284,57 @@ class ReportDataset extends BaseActiveRecord
 	public function compute_Events($inputs) {
 		$params = array();
 		$whereOr = array();
+		$where = "e.deleted = ? and ep.deleted = ?";
+		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
+		$whereParams = array(0,0);
+
+		$command = Yii::app()->db->createCommand()
+			->from('event e')
+			->join('episode ep','e.episode_id = ep.id')
+			->join('patient p','ep.patient_id = p.id')
+			->join('contact c',"c.parent_class = 'Patient' and c.parent_id = p.id");
+
+		foreach ($this->elements as $element) {
+			$model = new $element->elementType->class_name;
+			$table = $model->tableName();
+
+			if ($element->optional) {
+				$command->leftJoin("$table el{$element->id}","el{$element->id}.event_id = e.id");
+			} else {
+				$command->join("$table el{$element->id}","el{$element->id}.event_id = e.id");
+			}
+
+			$select[] = "el{$element->id}.id as el{$element->id}_id";
+
+			foreach ($element->fields as $field) {
+				$select[] = "el{$element->id}.{$field->field}";
+			}
+
+			foreach ($element->joins as $join) {
+				$command->join($join->join_table,"el{$element->id}.{$join->join_clause}");
+				$select[] = $join->join_select;
+			}
+		}
+
+		foreach ($this->inputs as $input) {
+			if ($input->relatedEntity) {
+				foreach ($input->relatedEntity->tables as $table) {
+					if (isset($inputs[$table->type->name])) {
+						foreach ($inputs[$table->type->name] as $i => $inputItem) {
+							$command->join("{$table->table_name} {$table->type->name}_$i","{$table->type->name}_$i.{$table->table_related_field} = el{$input->relatedEntity->element->id}.id");
+							$select[] = "{$table->type->name}_$i.{$table->table_query_field} as {$table->type->name}_query_$i";
+							$select[] = "{$table->type->name}_$i.{$table->table_date_field} as {$table->type->name}_date_$i";
+							$where .= " and {$table->type->name}_$i.{$table->table_query_field} = $inputItem";
+
+							foreach ($table->relations as $j => $relation) {
+								$command->join("{$relation->related_table} {$table->type->name}_relation_{$i}_$j","{$table->type->name}_$i.{$relation->local_field} = {$table->type->name}_relation_{$i}_$j.id");
+								$select[] = "{$table->type->name}_relation_{$i}_$j.{$relation->select_field} as {$table->type->name}_relation_{$i}_{$relation->select_field_as}";
+							}
+						}
+					}
+				}
+			}
+		}
 
 		foreach ($this->inputs as $input) {
 			if ($input->include) {
@@ -298,7 +350,9 @@ class ReportDataset extends BaseActiveRecord
 					if ($input->or_id) {
 						$whereOr[$input->or_id][$input->name] = $inputs[$input->name];
 					} else {
-						$params['where'][$input->name] = $inputs[$input->name];
+						if (isset($inputs[$input->name])) {
+							$params['where'][$input->name] = $inputs[$input->name];
+						}
 					}
 				}
 			}
@@ -315,10 +369,6 @@ class ReportDataset extends BaseActiveRecord
 				$params['whereOr'][] = $whereOrItem;
 			}
 		}
-
-		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
-		$where = "e.deleted = ? and ep.deleted = ?";
-		$whereParams = array(0,0);
 
 		if (@$params['where']['firm_id']) {
 			$where .= " and ep.firm_id = ?";
@@ -347,35 +397,7 @@ class ReportDataset extends BaseActiveRecord
 			}
 		}
 
-		$data = Yii::app()->db->createCommand()
-			->from('event e')
-			->join('episode ep','e.episode_id = ep.id')
-			->join('patient p','ep.patient_id = p.id')
-			->join('contact c',"c.parent_class = 'Patient' and c.parent_id = p.id");
-
-		foreach ($this->elements as $element) {
-			$model = new $element->elementType->class_name;
-			$table = $model->tableName();
-
-			if ($element->optional) {
-				$data->leftJoin("$table el{$element->id}","el{$element->id}.event_id = e.id");
-			} else {
-				$data->join("$table el{$element->id}","el{$element->id}.event_id = e.id");
-			}
-
-			$select[] = "el{$element->id}.id as el{$element->id}_id";
-
-			foreach ($element->fields as $field) {
-				$select[] = "el{$element->id}.{$field->field}";
-			}
-
-			foreach ($element->joins as $join) {
-				$data->join($join->join_table,"el{$element->id}.{$join->join_clause}");
-				$select[] = $join->join_select;
-			}
-		}
-
-		return $data->select(implode(',',$select))->where($where,$whereParams)->queryAll();
+		return $command->select(implode(',',$select))->where($where,$whereParams)->queryAll();
 	}
 
 	public function compute_Patients($inputs) {
