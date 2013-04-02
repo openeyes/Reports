@@ -68,6 +68,7 @@ class ReportDatasetRelatedEntity extends BaseActiveRecord
 		return array(
 			'tables' => array(self::HAS_MANY, 'ReportDatasetRelatedEntityTable', 'entity_id'),
 			'types' => array(self::HAS_MANY, 'ReportDatasetRelatedEntityType', 'entity_id'),
+			'element' => array(self::BELONGS_TO, 'ReportDatasetElement', 'element_id'),
 		);
 	}
 
