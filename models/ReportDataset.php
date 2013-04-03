@@ -189,8 +189,9 @@ class ReportDataset extends BaseActiveRecord
 
 		$type_clauses = array();
 
+		$select = array('c.first_name','c.last_name','p.dob','p.hos_num','e.datetime','ep.patient_id');
+
 		$data = Yii::app()->db->createCommand()
-			->select("l.id as lid, l2.id as l2id, l.event_id, l2.event_id as l2_event_id, c.first_name, c.last_name, p.dob, p.hos_num, e.datetime, ep.patient_id")
 			->from("event e")
 			->join("episode ep","e.episode_id = ep.id")
 			->join("patient p","ep.patient_id = p.id")
@@ -219,6 +220,8 @@ class ReportDataset extends BaseActiveRecord
 			}
 
 			$where_clauses[] = $clause." )";
+			$select[] = 'l.id as lid';
+			$select[] = 'l.event_id';
 		}
 
 		if ($et_legacyletters && @$inputs['match_legacyletters']) {
@@ -248,6 +251,8 @@ class ReportDataset extends BaseActiveRecord
 			}
 
 			$where_clauses[] = $clause." )";
+			$select[] = 'l2.id as l2id';
+			$select[] = 'l2.event_id as l2_event_id';
 		}
 
 		$where = " ( ".implode(' or ',$where_clauses)." ) ";
@@ -264,10 +269,11 @@ class ReportDataset extends BaseActiveRecord
 		$results = array();
 
 		foreach ($data->where($where,$where_params)
+			->select(implode(',',$select))
 			->order("e.datetime asc")
 			->queryAll() as $i => $row) {
 
-			if ($row['lid']) {
+			if (@$row['lid']) {
 				$row['type'] = 'Correspondence';
 				$row['link'] = 'http://openeyes.moorfields.nhs.uk/OphCoCorrespondence/default/view/'.$row['event_id'];
 			} else {
