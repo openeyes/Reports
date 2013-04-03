@@ -15,12 +15,10 @@ class DefaultController extends BaseController {
 	{
 		return array(
 			array('allow',
-				'users'=>array('@')
+				'expression' => 'BaseController::checkUserLevel(5)',
 			),
 			// non-logged in can't view anything
-			array('deny',
-				'users'=>array('?')
-			),
+			array('deny'),
 		);
 	}
 
