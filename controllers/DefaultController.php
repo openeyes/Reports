@@ -208,6 +208,16 @@ class DefaultController extends BaseController {
 
 		$grand_total = 0;
 
+		if (!$from_ts = strtotime(@$_POST['date_from'])) {
+			throw new Exception("Invalid or missing from date: ".@$_POST['date_from']);
+		}
+		if (!$to_ts = strtotime(@$_POST['date_to'])) {
+			throw new Exception("Invalid or missing to date: ".@$_POST['date_to']);
+		}
+
+		$from = date('Y-m-d',$from_ts).' 00:00:00';
+		$to = date('Y-m-d',$to_ts).' 23:59:59';
+
 		foreach (Yii::app()->db->createCommand()
 			->select("p.dob, p.gender, s.name as subspecialty, si.name as site, e.site_id")
 			->from("event e")
@@ -222,7 +232,7 @@ class DefaultController extends BaseController {
 			->leftJoin("ophtroperationbooking_operation_session se","b.session_id = se.id")
 			->leftJoin("ophtroperationbooking_operation_theatre t","se.theatre_id = t.id")
 			->leftJoin("site si","t.site_id = si.id")
-			->where("e.event_type_id = ?",array($_POST['event_type_id']))
+			->where("e.event_type_id = ? and e.datetime >= ? and e.datetime <= ?",array($_POST['event_type_id'],$from,$to))
 			->queryAll() as $event) {
 
 			if (!$event['site']) {
