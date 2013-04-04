@@ -1,5 +1,10 @@
 <tr>
 	<td colspan="2">
+		Found <?php echo count($data[$item->data_field])?> results.
+	</td>
+</tr>
+<tr>
+	<td colspan="2">
 		<?php if (empty($data[$item->data_field])) {?>
 			None
 		<?php }else{?>
