@@ -33,3 +33,22 @@ h2.reports { background:#666; color:#fff; border:1px solid #999; border-left:non
 .bullet .measure.s1 { fill: steelblue; }
 .bullet .title { font-size: 14px; font-weight: bold; }
 .bullet .subtitle { fill: #999; }
+
+/* colour the report icon bases on category */
+.reportsgroup ul li a.general { background-image: url(../img/report-general.png); }
+.reportsgroup ul li a.treatment {  background-image: url(../img/report-treatment.png);}
+.reportsgroup ul li a.communication {  background-image: url(../img/report-communication.png);}
+.reportsgroup ul li a.investigation {  background-image: url(../img/report-investigation.png);}
+.reportsgroup ul li a.outcomes {  background-image: url(../img/report-outcomes.png);}
+.reportsgroup ul li a.images { background-image: url(../img/report-images.png);}
+.reportsgroup ul li a.clinical { background-image: url(../img/report-clinical.png);}
+.reportsgroup ul li a.drugs { background-image: url(../img/report-drugs.png);}
+
+.reportsgroup ul li a.general:hover 		{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.treatment:hover 		{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.communication:hover 	{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.investigation:hover	{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.outcomes:hover 		{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.images:hover			{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.clinical:hover		{ background-image: url(../img/greport-small-no-bg.png); }
+.reportsgroup ul li a.drugs:hover			{ background-image: url(../img/greport-small-no-bg.png); }

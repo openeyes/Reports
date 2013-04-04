@@ -7,7 +7,7 @@
 					<?php if ($this->report && $this->report->id == $report->id) {?>
 						<span class="viewing"><?php echo $report->name?></span>
 					<?php }else{?>
-						<?php echo CHtml::link($report->name,array('/Reports/default/view/'.$report->id))?>
+						<?php echo CHtml::link($report->name,array('/Reports/default/view/'.$report->id),array('class'=>$report->icon))?>
 					<?php }?>
 				</li>
 			<?php }?>
