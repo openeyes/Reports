@@ -21,7 +21,7 @@
 			<?php if (preg_match('/reportOperationSummary/',@$_SERVER['REQUEST_URI'])) {?>
 				<span class="viewing">Operation summary</span>
 			<?php }else{?>
-				<?php echo CHtml::link("Operation summary",array('/Reports/default/reportOperationSummary'))?>
+				<?php echo CHtml::link("Operation summary",array('/Reports/default/reportOperationSummary'),array('class'=>'outcomes'))?>
 			<?php }?>
 		</li>
 	</ul>
