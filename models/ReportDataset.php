@@ -403,7 +403,7 @@ class ReportDataset extends BaseActiveRecord
 			}
 		}
 
-		return $command->select(implode(',',$select))->where($where,$whereParams)->queryAll();
+		return $command->select(implode(',',$select))->where($where,$whereParams)->limit(100)->queryAll();
 	}
 
 	public function compute_Patients($inputs) {
