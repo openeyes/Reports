@@ -154,7 +154,7 @@ class DefaultController extends BaseController {
 		$cells = array();
 		$site_ids = array();
 
-		foreach (Site::model()->findAll() as $i => $site) {
+		foreach (Site::model()->findAll('id = 21 or id = 22') as $i => $site) {
 			$site_ids[$site->name] = $i;
 
 			$cells['header'][$site->name] = array(
@@ -167,7 +167,7 @@ class DefaultController extends BaseController {
 
 		$subspecialty_ids = array();
 
-		foreach (Site::model()->findAll() as $site) {
+		foreach (Site::model()->findAll('id = 21 or id = 22') as $site) {
 			foreach (Subspecialty::model()->findAll(array('order'=>'name asc')) as $i => $subspecialty) {
 				$subspecialty_ids[$subspecialty->name] = $i;
 
@@ -196,7 +196,7 @@ class DefaultController extends BaseController {
 			}
 		}
 
-		foreach (Site::model()->findAll() as $n => $site) {
+		foreach (Site::model()->findAll('id = 21 or id = 22') as $n => $site) {
 			for ($i=0;$i<12+($n*12);$i++) {
 				$cells['Total'][$i] = 0;
 			}
