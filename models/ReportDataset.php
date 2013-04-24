@@ -191,7 +191,7 @@ class ReportDataset extends BaseActiveRecord
 
 		$select = array('c.first_name','c.last_name','p.dob','p.hos_num','e.datetime','ep.patient_id');
 
-		$data = Yii::app()->db->createCommand()
+		$data = Yii::app()->db_report->createCommand()
 			->from("event e")
 			->join("episode ep","e.episode_id = ep.id")
 			->join("patient p","ep.patient_id = p.id")
@@ -294,7 +294,7 @@ class ReportDataset extends BaseActiveRecord
 		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
 		$whereParams = array(0,0);
 
-		$command = Yii::app()->db->createCommand()
+		$command = Yii::app()->db_report->createCommand()
 			->from('event e')
 			->join('episode ep','e.episode_id = ep.id')
 			->join('patient p','ep.patient_id = p.id')
@@ -410,7 +410,7 @@ class ReportDataset extends BaseActiveRecord
 		$select = array("p.id as patient_id, p.hos_num, c.first_name, c.last_name");
 		$where = '';
 
-		$command = Yii::app()->db->createCommand()
+		$command = Yii::app()->db_report->createCommand()
 			->from('patient p')
 			->join("contact c","c.parent_class = 'Patient' and c.parent_id = p.id");
 
