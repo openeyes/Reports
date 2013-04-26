@@ -181,7 +181,13 @@ class ReportItemListItem extends BaseActiveRecord
 				$model = $this->element->elementType->class_name;
 				$listItems = array();
 
-				if ($element = $model::model()->findByPk($dataItem["el{$this->element_id}_id"])) {
+				Yii::app()->session['database_connection'] = 'db_report';
+
+				$element = $model::model()->with($this->element_relation)->findByPk($dataItem["el{$this->element_id}_id"]);
+
+				unset(Yii::app()->session['database_connection']);
+
+				if ($element) {
 					foreach ($element->{$this->element_relation} as $element_related_item) {
 						$listItem = array();
 
