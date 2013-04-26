@@ -181,21 +181,65 @@ class ReportItemListItem extends BaseActiveRecord
 				$model = $this->element->elementType->class_name;
 				$listItems = array();
 
-				Yii::app()->session['database_connection'] = 'db_report';
+				//$element = Yii::app()->db_report->createCommand()->select("*")->from($model::model()->tableName())->where("id=:id",array(':id'=>$dataItem["el{$this->element_id}_id"]))->queryRow();
 
-				$element = $model::model()->with($this->element_relation)->findByPk($dataItem["el{$this->element_id}_id"]);
-
-				unset(Yii::app()->session['database_connection']);
-
-				if ($element) {
-					foreach ($element->{$this->element_relation} as $element_related_item) {
-						$listItem = array();
-
-						foreach ($this->listItems as $listItemSpec) {
-							$listItem[$listItemSpec->name] = $listItemSpec->compute($dataItem, $inputs, $element_related_item);
+				if ($dataItem["el{$this->element_id}_id"]) {
+					foreach ($model::model()->relations() as $name => $relation) {
+						if ($name == $this->element_relation) {
+							$_relation = $relation;
+							break;
 						}
+					}
 
-						$listItems[] = $listItem;
+					if (!isset($_relation)) {
+						throw new Exception("Relation not found: $this->element_relation");
+					}
+
+					switch ($relation[0]) {
+						case $model::MANY_MANY:
+							if (!preg_match('/^(.*?)\((.*?),(.*?)\)$/',$relation[2],$m)) {
+								throw new Exception("Badly formed relation: $this->element_relation");
+							}
+							$related_table = $relation[1]::model()->tableName();
+							$intermediary_table = trim($m[1]);
+							$field1 = trim($m[2]);
+							$field2 = trim($m[3]);
+							$related_item_query = Yii::app()->db_report->createCommand()
+								->select("$related_table.*")
+								->from($related_table)
+								->join($intermediary_table,"$intermediary_table.$field2 = $related_table.id")
+								->where("$intermediary_table.$field1 = ".$dataItem["el{$this->element_id}_id"]);
+								if (isset($relation['order'])) {
+									$related_item_query->order($relation['order']);
+								}
+								$related_item_query = $related_item_query->queryAll();
+							break;
+						case $model::HAS_MANY:
+							$related_table = $relation[1]::model()->tableName();
+							$field = $relation[2];
+							$related_item_query = Yii::app()->db_report->createCommand()
+								->select("$related_table.*")
+								->from($related_table)
+								->where("$field = ".$dataItem["el{$this->element_id}_id"]);
+							if (isset($relation['order'])) {
+								$related_item_query->order($relation['order']);
+							}
+							$related_item_query = $related_item_query->queryAll();
+							break;
+						default:
+							throw new Exception("Unsupported relation type: $this->element_relation");
+					}
+
+					if ($related_item_query) {
+						foreach ($related_item_query as $element_related_item) {
+							$listItem = array();
+
+							foreach ($this->listItems as $listItemSpec) {
+								$listItem[$listItemSpec->name] = $listItemSpec->compute($dataItem, $inputs, $element_related_item);
+							}
+
+							$listItems[] = $listItem;
+						}
 					}
 				}
 
@@ -225,7 +269,7 @@ class ReportItemListItem extends BaseActiveRecord
 				return $result;
 
 			case 'element_relation':
-				return $element_related_item->{$this->data_field};
+				return $element_related_item[$this->data_field];
 		}
 
 		throw new Exception("Unhandled item data type: {$this->dataType->name}");
