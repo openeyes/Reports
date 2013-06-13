@@ -231,7 +231,7 @@ class Report_OperationsCommand extends CConsoleCommand {
 				'subtitle' => 'Complications',
 				'display_order' => 6,
 				'element_id' => $el_cataract->id,
-				'element_relation' => 'complications',
+				'element_relation' => 'complicationItems',
 			));
 
 				$complications->addListItem(array(
