@@ -227,20 +227,21 @@ class ReportItem extends BaseActiveRecord
 		$model = $this->element->elementType->class_name;
 
 		foreach ($dataset as $dataItem) {
-			$element = $model::model()->findByPk($dataItem["el{$this->element->id}_id"]);
+			if ($element = $model::model()->findByPk($dataItem["el{$this->element->id}_id"])) {
 
-			$matches = false;
-			foreach ($element->{$this->element_relation} as $related_model) {
-				if ($this->element_relation_field && $this->element_relation_value) {
-					if ($related_model->{$this->element_relation_field} == $this->element_relation_value) {
+				$matches = false;
+				foreach ($element->{$this->element_relation} as $related_model) {
+					if ($this->element_relation_field && $this->element_relation_value) {
+						if ($related_model->{$this->element_relation_field} == $this->element_relation_value) {
+							$matches = true;
+						}
+					} else {
 						$matches = true;
 					}
-				} else {
-					$matches = true;
 				}
-			}
-			if ($matches) {
-				$result['number']++;
+				if ($matches) {
+					$result['number']++;
+				}
 			}
 		}
 
