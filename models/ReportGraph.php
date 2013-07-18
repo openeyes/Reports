@@ -145,4 +145,15 @@ class ReportGraph extends BaseActiveRecord
 
 		return $objects;
 	}
+
+	public function delete()
+	{
+		foreach ($this->items as $item) {
+			if (!$item->delete()) {
+				throw new Exception("Unable to delete item: ".print_r($item->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

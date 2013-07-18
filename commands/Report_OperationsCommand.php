@@ -66,6 +66,12 @@ class Report_OperationsCommand extends CConsoleCommand {
 
 		/* Operations */
 
+		if ($report = Report::model()->find('query_type_id=? and name=?',array($query_type_events->id,'Operations'))) {
+			if (!$report->delete()) {
+				throw new Exception("Failed to delete report: ".print_r($report->getErrors(),true));
+			}
+		}
+
 		$report = Report::add(array(
 			'query_type_id' => $query_type_events->id,
 			'subspecialty_id' => null,
@@ -187,6 +193,14 @@ class Report_OperationsCommand extends CConsoleCommand {
 			));
 	
 			$operations->addListItem(array(
+				'data_type_id' => $rimt_nhsdate->id,
+				'name' => 'Date of birth',
+				'data_field' => 'dob',
+				'subtitle' => 'Patient date of birth',
+				'display_order' => 2,
+			));
+
+			$operations->addListItem(array(
 				'data_type_id' => $rimt_string->id,
 				'name' => 'First name',
 				'data_field' => 'first_name',
@@ -202,6 +216,14 @@ class Report_OperationsCommand extends CConsoleCommand {
 				'display_order' => 4,
 			));
 	
+			$operations->addListItem(array(
+				'data_type_id' => $rimt_string->id,
+				'name' => 'Eye',
+				'data_field' => 'eye',
+				'subtitle' => 'Eye',
+				'display_order' => 4,
+			));
+
 			$procedures = $operations->addListItem(array(
 				'data_type_id' => $rimt_list_from_element_relation->id,
 				'name' => 'Procedures',
