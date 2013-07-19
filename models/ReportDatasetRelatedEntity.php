@@ -145,6 +145,12 @@ class ReportDatasetRelatedEntity extends BaseActiveRecord
 			}
 		}
 
+		foreach (ReportInput::model()->findAll('related_entity_id=?',array($this->id)) as $input) {
+			if (!$input->delete()) {
+				throw new Exception("Unable to delete input: ".print_r($input->getErrors(),true));
+			}
+		}
+
 		return parent::delete();
 	}
 }
