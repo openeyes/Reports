@@ -412,7 +412,7 @@ class ReportDataset extends BaseActiveRecord
 
 		$command = Yii::app()->db_report->createCommand()
 			->from('patient p')
-			->join("contact c","c.parent_class = 'Patient' and c.parent_id = p.id");
+			->join("contact c","p.contact_id = c.id");
 
 		foreach ($this->inputs as $input) {
 			if ($input->relatedEntity) {
