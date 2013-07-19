@@ -189,13 +189,13 @@ class ReportDataset extends BaseActiveRecord
 
 		$type_clauses = array();
 
-		$select = array('c.first_name','c.last_name','p.dob','p.hos_num','e.datetime','ep.patient_id');
+		$select = array('c.first_name','c.last_name','p.dob','p.hos_num','e.created_date','ep.patient_id');
 
 		$data = Yii::app()->db_report->createCommand()
 			->from("event e")
 			->join("episode ep","e.episode_id = ep.id")
 			->join("patient p","ep.patient_id = p.id")
-			->join("contact c","c.parent_class = 'Patient' and c.parent_id = p.id");
+			->join("contact c","p.contact_id = c.id");
 
 		if ($et_correspondence && @$inputs['match_correspondence']) {
 			$data->leftJoin("et_ophcocorrespondence_letter l","l.event_id = e.id");
@@ -258,11 +258,11 @@ class ReportDataset extends BaseActiveRecord
 		$where = " ( ".implode(' or ',$where_clauses)." ) ";
 
 		if (@$inputs['date_from']) {
-			$where .= " and e.datetime >= :dateFrom";
+			$where .= " and e.created_date >= :dateFrom";
 			$where_params[':dateFrom'] = date('Y-m-d',strtotime($inputs['date_from']))." 00:00:00";
 		}
 		if (@$inputs['date_to']) {
-			$where .= " and e.datetime <= :dateTo";
+			$where .= " and e.created_date <= :dateTo";
 			$where_params[':dateTo'] = date('Y-m-d',strtotime($inputs['date_to']))." 23:59:59";
 		}
 
@@ -270,7 +270,7 @@ class ReportDataset extends BaseActiveRecord
 
 		foreach ($data->where($where,$where_params)
 			->select(implode(',',$select))
-			->order("e.datetime asc")
+			->order("e.created_date asc")
 			->queryAll() as $i => $row) {
 
 			if (@$row['lid']) {
@@ -291,14 +291,14 @@ class ReportDataset extends BaseActiveRecord
 		$params = array();
 		$whereOr = array();
 		$where = "e.deleted = ? and ep.deleted = ?";
-		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
+		$select = array('e.created_date,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
 		$whereParams = array(0,0);
 
 		$command = Yii::app()->db_report->createCommand()
 			->from('event e')
 			->join('episode ep','e.episode_id = ep.id')
 			->join('patient p','ep.patient_id = p.id')
-			->join('contact c',"c.parent_class = 'Patient' and c.parent_id = p.id");
+			->join('contact c',"p.contact_id = c.id");
 
 		foreach ($this->elements as $element) {
 			$model = new $element->elementType->class_name;
@@ -381,11 +381,11 @@ class ReportDataset extends BaseActiveRecord
 			$whereParams[] = $params['where']['firm_id'];
 		}
 		if (@$params['where']['date_from']) {
-			$where .= " and e.datetime >= ?";
+			$where .= " and e.created_date >= ?";
 			$whereParams[] = date('Y-m-d',strtotime($params['where']['date_from']))." 00:00:00";
 		}
 		if (@$params['where']['date_to']) {
-			$where .= " and e.datetime <= ?";
+			$where .= " and e.created_date <= ?";
 			$whereParams[] = date('Y-m-d',strtotime($params['where']['date_to']))." 23:59:59";
 		}
 
@@ -488,6 +488,13 @@ class ReportDataset extends BaseActiveRecord
 			}
 		}
 
+		foreach ($this->relatedEntities as $relatedEntity) {
+			if (!$relatedEntity->delete()) {
+				throw new Exception("Unable to delete related entity: ".print_r($relatedEntity->getErrors(),true));
+			}
+			echo "Deleted: $relatedEntity->id\n";
+		}
+
 		foreach ($this->elements as $element) {
 			if (!$element->delete()) {
 				throw new Exception("Unable to delete element: ".print_r($element->getErrors(),true));
@@ -497,12 +504,6 @@ class ReportDataset extends BaseActiveRecord
 		foreach ($this->inputs as $input) {
 			if (!$input->delete()) {
 				throw new Exception("Unable to delete input: ".print_r($input->getErrors(),true));
-			}
-		}
-
-		foreach ($this->relatedEntities as $relatedEntity) {
-			if (!$relatedEntity->delete()) {
-				throw new Exception("Unable to delete related entity: ".print_r($relatedEntity->getErrors(),true));
 			}
 		}
 

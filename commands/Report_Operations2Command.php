@@ -67,7 +67,7 @@ class Report_Operations2Command extends CConsoleCommand {
 
 		/* Operations */
 
-		if ($report = Report::model()->find('query_type_id=? and subspecialty_id=null and name=?',array($query_type_events->id,'Operations 2'))) {
+		if ($report = Report::model()->find('query_type_id=? and subspecialty_id is null and name=?',array($query_type_events->id,'Operations 2'))) {
 			if (!$report->delete()) {
 				throw new Exception("Unable to delete Report: ".print_r($report->getErrors(),true));
 			}
@@ -153,7 +153,7 @@ class Report_Operations2Command extends CConsoleCommand {
 			$operations->addListItem(array(
 				'data_type_id' => $rimt_nhsdate->id,
 				'name' => 'Date',
-				'data_field' => 'datetime',
+				'data_field' => 'created_date',
 				'subtitle' => 'Date',
 				'display_order' => 1,
 			));
@@ -212,7 +212,7 @@ class Report_Operations2Command extends CConsoleCommand {
 				'subtitle' => 'Complications',
 				'display_order' => 6,
 				'element_id' => $el_cataract->id,
-				'element_relation' => 'complications',
+				'element_relation' => 'complicationItems',
 			));
 
 				$complications->addListItem(array(

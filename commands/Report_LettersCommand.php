@@ -166,7 +166,7 @@ class Report_LettersCommand extends CConsoleCommand {
 			$operations->addListItem(array(
 				'data_type_id' => $rimt_nhsdate->id,
 				'name' => 'Date',
-				'data_field' => 'datetime',
+				'data_field' => 'created_date',
 				'subtitle' => 'Date',
 				'display_order' => 1,
 			));

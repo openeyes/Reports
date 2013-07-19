@@ -70,6 +70,7 @@ class ReportDatasetElement extends BaseActiveRecord
 			'elementType' => array(self::BELONGS_TO, 'ElementType', 'element_type_id'),
 			'fields' => array(self::HAS_MANY, 'ReportDatasetElementField', 'element_id'),
 			'joins' => array(self::HAS_MANY, 'ReportDatasetElementJoin', 'element_id'),
+			'relatedEntities' => array(self::HAS_MANY, 'ReportDatasetRelatedEntity', 'element_id'),
 		);
 	}
 
@@ -155,6 +156,12 @@ class ReportDatasetElement extends BaseActiveRecord
 		foreach ($this->joins as $join) {
 			if (!$join->delete()) {
 				throw new Exception("Unable to delete join: ".print_r($join->getErrors(),true));
+			}
+		}
+
+		foreach ($this->relatedEntities as $relatedEntity) {
+			if (!$relatedEntity->delete()) {
+				throw new Exception("Unable to delete related entity: ".print_r($relatedEntity->getErrors(),true));
 			}
 		}
 

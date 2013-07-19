@@ -269,6 +269,10 @@ class ReportItemListItem extends BaseActiveRecord
 				return $result;
 
 			case 'element_relation':
+				if (!isset($element_related_item[$this->data_field])) {
+					return 'MISSING VALUE';
+				}
+
 				return $element_related_item[$this->data_field];
 		}
 
