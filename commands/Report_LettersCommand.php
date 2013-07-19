@@ -64,6 +64,12 @@ class Report_LettersCommand extends CConsoleCommand {
 
 		/* Letters */
 
+		if ($report = Report::model()->find('query_type_id=? and subspecialty_id is null and name=?',array($query_type_letters->id,'Letters'))) {
+			if (!$report->delete()) {
+				throw new Exception("Unable to delete report: ".print_r($report->getErrors(),true));
+			}
+		}
+
 		$report = Report::add(array(
 			'query_type_id' => $query_type_letters->id,
 			'subspecialty_id' => null,

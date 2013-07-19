@@ -257,4 +257,21 @@ class ReportItem extends BaseActiveRecord
 
 		return $result;
 	}
+
+	public function delete()
+	{
+		foreach ($this->listItems as $listItem) {
+			if (!$listItem->delete()) {
+				throw new Exception("Unable to delete list item: ".print_r($listItem->getErrors(),true));
+			}
+		}
+
+		foreach ($this->pairFields as $pairField) {
+			if (!$pairField->delete()) {
+				throw new Exception("Unable to delete pair field: ".print_r($pairField->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

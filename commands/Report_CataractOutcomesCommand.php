@@ -68,6 +68,12 @@ class Report_CataractOutcomesCommand extends CConsoleCommand {
 		$element_surgeon = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementSurgeon'));
 		$element_cataract = ElementType::model()->find('event_type_id=? and class_name=?',array($opnote->id,'ElementCataract'));
 
+		if ($report = Report::model()->find('query_type_id=? and subspecialty_id=? and name=?',array($query_type_events->id,4,'Cataract outcomes'))) {
+			if (!$report->delete()) {
+				throw new Exception("Unable to delete report: ".print_r($report->getErrors(),true));
+			}
+		}
+
 		$report = Report::add(array(
 			'query_type_id' => $query_type_events->id,
 			'subspecialty_id' => 4,

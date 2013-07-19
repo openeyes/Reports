@@ -67,6 +67,12 @@ class Report_Operations2Command extends CConsoleCommand {
 
 		/* Operations */
 
+		if ($report = Report::model()->find('query_type_id=? and subspecialty_id=null and name=?',array($query_type_events->id,'Operations 2'))) {
+			if (!$report->delete()) {
+				throw new Exception("Unable to delete Report: ".print_r($report->getErrors(),true));
+			}
+		}
+
 		$report = Report::add(array(
 			'query_type_id' => $query_type_events->id,
 			'subspecialty_id' => null,

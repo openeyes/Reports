@@ -143,4 +143,21 @@ class ReportDatasetElement extends BaseActiveRecord
 
 		return $entity;
 	}
+
+	public function delete()
+	{
+		foreach ($this->fields as $field) {
+			if (!$field->delete()) {
+				throw new Exception("Unable to delete field: ".print_r($field->getErrors(),true));
+			}
+		}
+
+		foreach ($this->joins as $join) {
+			if (!$join->delete()) {
+				throw new Exception("Unable to delete join: ".print_r($join->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

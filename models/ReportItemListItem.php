@@ -274,4 +274,21 @@ class ReportItemListItem extends BaseActiveRecord
 
 		throw new Exception("Unhandled item data type: {$this->dataType->name}");
 	}
+
+	public function delete()
+	{
+		foreach ($this->conditionals as $conditional) {
+			if (!$conditional->delete()) {
+				throw new Exception("Unable to delete list item conditional: ".print_r($conditional->getErrors(),true));
+			}
+		}
+
+		foreach ($this->listItems as $listItem) {
+			if (!$listItem->delete()) {
+				throw new Exception("Unable to delete list item: ".print_r($listItem->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

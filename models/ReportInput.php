@@ -164,4 +164,15 @@ class ReportInput extends BaseActiveRecord
 
 		return $option;
 	}
+
+	public function delete()
+	{
+		foreach ($this->options as $option) {
+			if (!$option->delete()) {
+				throw new Exception("Unable to delete input option: ".print_r($option->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

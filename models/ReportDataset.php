@@ -479,4 +479,33 @@ class ReportDataset extends BaseActiveRecord
 
 		return $results;
 	}
+
+	public function delete()
+	{
+		foreach ($this->items as $item) {
+			if (!$item->delete()) {
+				throw new Exception("Unable to delete report item: ".print_r($item->getErrors(),true));
+			}
+		}
+
+		foreach ($this->elements as $element) {
+			if (!$element->delete()) {
+				throw new Exception("Unable to delete element: ".print_r($element->getErrors(),true));
+			}
+		}
+
+		foreach ($this->inputs as $input) {
+			if (!$input->delete()) {
+				throw new Exception("Unable to delete input: ".print_r($input->getErrors(),true));
+			}
+		}
+
+		foreach ($this->relatedEntities as $relatedEntity) {
+			if (!$relatedEntity->delete()) {
+				throw new Exception("Unable to delete related entity: ".print_r($relatedEntity->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

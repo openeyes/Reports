@@ -115,4 +115,15 @@ class ReportDatasetRelatedEntityTable extends BaseActiveRecord
 
 		return $relation;
 	}
+
+	public function delete()
+	{
+		foreach ($this->relations as $relation) {
+			if (!$relation->delete()) {
+				throw new Exception("Unable to delete related entity table relation: ".print_r($relation->getErrors(),true));
+			}
+		}
+
+		return parent::delete();
+	}
 }

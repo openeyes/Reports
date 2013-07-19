@@ -246,11 +246,6 @@ class Report extends BaseActiveRecord
 	public function delete()
 	{
 		foreach ($this->graphs as $graph) {
-			foreach ($graph->items as $item) {
-				if (!$item->delete()) {
-					throw new Exception("Unable to delete graph item: ".print_r($item->getErrors(),true));
-				}
-			}
 			if (!$graph->delete()) {
 				throw new Exception("Unable to delete graph: ".print_r($graph->getErrors(),true));
 			}
@@ -263,72 +258,6 @@ class Report extends BaseActiveRecord
 		}
 
 		foreach ($this->datasets as $dataset) {
-			foreach ($dataset->items as $item) {
-				foreach ($item->listItems as $listItem) {
-					/*foreach ($listItem->fields as $field) {
-						if (!$field->delete()) {
-							throw new Exception("Unable to delete list item field: ".print_r($field->getErrors(),true));
-						}
-					}*/
-
-					foreach ($listItem->conditionals as $conditional) {
-						if (!$conditional->delete()) {
-							throw new Exception("Unable to delete list item conditional: ".print_r($conditional->getErrors(),true));
-						}
-					}
-
-					foreach ($listItem->listItems as $listItem2) {
-						if (!$listItem2->delete()) {
-							throw new Exception("Unable to delete list item: ".print_r($listItem2->getErrors(),true));
-						}
-					}
-
-					if (!$listItem->delete()) {
-						throw new Exception("Unable to delete list item: ".print_r($listItem->getErrors(),true));
-					}
-				}
-
-				foreach ($item->pairFields as $pairField) {
-					if (!$pairField->delete()) {
-						throw new Exception("Unable to delete pair field: ".print_r($pairField->getErrors(),true));
-					}
-				}
-
-				if (!$item->delete()) {
-					throw new Exception("Unable to delete report item: ".print_r($item->getErrors(),true));
-				}
-			}
-
-			foreach ($dataset->elements as $element) {
-				foreach ($element->fields as $field) {
-					if (!$field->delete()) {
-						throw new Exception("Unable to delete field: ".print_r($field->getErrors(),true));
-					}
-				}
-
-				foreach ($element->joins as $join) {
-					if (!$join->delete()) {
-						throw new Exception("Unable to delete join: ".print_r($join->getErrors(),true));
-					}
-				}
-
-				if (!$element->delete()) {
-					throw new Exception("Unable to delete element: ".print_r($element->getErrors(),true));
-				}
-			}
-
-			foreach ($dataset->inputs as $input) {
-				foreach ($input->options as $option) {
-					if (!$option->delete()) {
-						throw new Exception("Unable to delete input option: ".print_r($option->getErrors(),true));
-					}
-				}
-
-				if (!$input->delete()) {
-					throw new Exception("Unable to delete input: ".print_r($input->getErrors(),true));
-				}
-			}
-
 			if (!$dataset->delete()) {
 				throw new Exception("Unable to delete dataset: ".print_r($dataset->getErrors(),true));
 			}
