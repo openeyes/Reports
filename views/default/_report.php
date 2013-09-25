@@ -37,14 +37,14 @@
 
 			$.ajax({
 				'type': 'POST',
-				'data': $('#reportData').serialize(),
+				'data': $('#reportData').serialize()+"&YII_CSRF_TOKEN="+YII_CSRF_TOKEN,
 				'url': baseUrl+'/Reports/default/validate/'+OE_report_id,
 				'success': function(html) {
 					if (html.length == 0) {
 						$('#errors').html('');
 						$.ajax({
 							'type': 'POST',
-							'data': $('#reportData').serialize(),
+							'data': $('#reportData').serialize()+"&YII_CSRF_TOKEN="+YII_CSRF_TOKEN,
 							'url': baseUrl+'/Reports/default/execute/'+OE_report_id,
 							'success': function(html) {
 								enableButtons();
