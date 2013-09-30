@@ -205,6 +205,9 @@ class Report extends BaseActiveRecord
 	public function execute($inputs) {
 		$results = array();
 
+		// Some queries are slow
+		set_time_limit(300);
+
 		foreach ($this->datasets as $dataset) {
 			$data = $dataset->compute($inputs);
 

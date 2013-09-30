@@ -6,24 +6,6 @@ class DefaultController extends BaseController {
 	public $report;
 	public $jsVars = array();
 
-	public function filters()
-	{
-		return array('accessControl');
-	}
-
-	public function accessRules()
-	{
-		return array(
-			array('allow',
-				'users'=>array('@')
-			),
-			// non-logged in can't view anything
-			array('deny',
-				'users'=>array('?')
-			),
-		);
-	}
-
 	protected function beforeAction($action) {
 		if ($action->id != 'download') {
 			$this->assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false, -1, YII_DEBUG);
