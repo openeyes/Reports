@@ -191,6 +191,9 @@ class Report extends BaseActiveRecord
 			->select("distinct(subspecialty.id), subspecialty.name")
 			->from("subspecialty")
 			->join("report","report.subspecialty_id = subspecialty.id")
+			->where("subspecialty.deleted = :notdeleted and report.deleted = :notdeleted",array(
+				":notdeleted" => 0,
+			))
 			->order("subspecialty.name asc")
 			->queryAll() as $subspecialty) {
 

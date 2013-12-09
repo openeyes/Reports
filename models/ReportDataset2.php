@@ -215,8 +215,8 @@ class ReportDataset extends BaseActiveRecord
 		}
 
 		$select = array('e.datetime,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
-		$where = "e.deleted = ? and ep.deleted = ?";
-		$whereParams = array(0,0);
+		$where = "e.deleted = :notdeleted and ep.deleted = :notdeleted and p.deleted = :notdeleted and c.deleted = :notdeleted";
+		$whereParams = array(':notdeleted' => 0);
 
 		if (@$params['where']['firm_id']) {
 			$where .= " and ep.firm_id = ?";
@@ -257,8 +257,10 @@ class ReportDataset extends BaseActiveRecord
 
 			if ($element->optional) {
 				$data->leftJoin("$table el{$element->id}","el{$element->id}.event_id = e.id");
+				$where .= " and (el{$element->id}.id is null or el{$element->id}.deleted = :notdeleted)";
 			} else {
 				$data->join("$table el{$element->id}","el{$element->id}.event_id = e.id");
+				$where .= " and el{$element->id}.deleted = :notdeleted";
 			}
 
 			$select[] = "el{$element->id}.id as el{$element->id}_id";
@@ -270,6 +272,8 @@ class ReportDataset extends BaseActiveRecord
 			foreach ($element->joins as $join) {
 				$data->join($join->join_table,"el{$element->id}.{$join->join_clause}");
 				$select[] = $join->join_select;
+
+				$where .= "$join->join_table.deleted = :notdeleted";
 			}
 		}
 

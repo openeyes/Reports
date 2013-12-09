@@ -184,7 +184,7 @@ class ReportDataset extends BaseActiveRecord
 		$et_legacyletters = EventType::model()->find('class_name=?',array('OphLeEpatientletter'));
 
 		$where_clauses = array();
-		$where_params = array();
+		$where_params = array(':notdeleted' => 0);
 		$where_operator = ($inputs['search_method'] == 1 ? ' and ' : ' or ');
 
 		$type_clauses = array();
@@ -197,10 +197,14 @@ class ReportDataset extends BaseActiveRecord
 			->join("patient p","ep.patient_id = p.id")
 			->join("contact c","p.contact_id = c.id");
 
+		$where_append = " and e.deleted = :notdeleted and ep.deleted = :notdeleted and p.deleted = :notdeleted and c.deleted = :notdeleted";
+
 		if ($et_correspondence && @$inputs['match_correspondence']) {
 			$data->leftJoin("et_ophcocorrespondence_letter l","l.event_id = e.id");
 			$clause = "(l.id is not null and e.event_type_id = :correspondenceID and ( ";
 			$where_params[':correspondenceID'] = $et_correspondence->id;
+
+			$where_append .= " and (l.id is null or l.deleted = :notdeleted)";
 
 			$where_clause = array();
 
@@ -229,6 +233,7 @@ class ReportDataset extends BaseActiveRecord
 			$clause = "(l2.id is not null and e.event_type_id = :legacyID and ( ";
 			$where_params[':legacyID'] = $et_legacyletters->id;
 
+			$where_append .= " and (l2.id is null or l2.deleted = :notdeleted)";
 			$where_clause = array();
 
 			foreach ($inputs['phrases'] as $i => $phrase) {
@@ -268,7 +273,7 @@ class ReportDataset extends BaseActiveRecord
 
 		$results = array();
 
-		foreach ($data->where($where,$where_params)
+		foreach ($data->where($where.$where_append,$where_params)
 			->select(implode(',',$select))
 			->order("e.created_date asc")
 			->queryAll() as $i => $row) {
@@ -290,9 +295,10 @@ class ReportDataset extends BaseActiveRecord
 	public function compute_Events($inputs) {
 		$params = array();
 		$whereOr = array();
-		$where = "e.deleted = ? and ep.deleted = ?";
+		$where = "e.deleted = :notdeleted and ep.deleted = :notdeleted and p.deleted = :notdeleted and c.deleted = :notdeleted";
 		$select = array('e.created_date,p.id as patient_id,p.dob,p.hos_num,c.first_name,c.last_name');
-		$whereParams = array(0,0);
+		$whereParams = array(':notdeleted' => 0);
+		$whereAppend = '';
 
 		$command = Yii::app()->db_report->createCommand()
 			->from('event e')
@@ -306,8 +312,10 @@ class ReportDataset extends BaseActiveRecord
 
 			if ($element->optional) {
 				$command->leftJoin("$table el{$element->id}","el{$element->id}.event_id = e.id");
+				$whereAppend .= " and (el{$element->id}.id is null or el{$element->id}.deleted = :notdeleted)";
 			} else {
 				$command->join("$table el{$element->id}","el{$element->id}.event_id = e.id");
+				$whereAppend .= " and el{$element->id}.deleted = :notdeleted";
 			}
 
 			$select[] = "el{$element->id}.id as el{$element->id}_id";
@@ -318,6 +326,7 @@ class ReportDataset extends BaseActiveRecord
 
 			foreach ($element->joins as $join) {
 				$command->join($join->join_table,"el{$element->id}.{$join->join_clause}");
+				$whereAppend .= " and $join->join_table.deleted = :notdeleted";
 				$select[] = $join->join_select;
 			}
 		}
@@ -328,12 +337,14 @@ class ReportDataset extends BaseActiveRecord
 					if (isset($inputs[$table->type->name])) {
 						foreach ($inputs[$table->type->name] as $i => $inputItem) {
 							$command->join("{$table->table_name} {$table->type->name}_$i","{$table->type->name}_$i.{$table->table_related_field} = el{$input->relatedEntity->element->id}.id");
+							$whereAppend .= " and {$table->type->name}_$i.deleted = :notdeleted";
 							$select[] = "{$table->type->name}_$i.{$table->table_query_field} as {$table->type->name}_query_$i";
 							$select[] = "{$table->type->name}_$i.{$table->table_date_field} as {$table->type->name}_date_$i";
 							$where .= " and {$table->type->name}_$i.{$table->table_query_field} = $inputItem";
 
 							foreach ($table->relations as $j => $relation) {
 								$command->join("{$relation->related_table} {$table->type->name}_relation_{$i}_$j","{$table->type->name}_$i.{$relation->local_field} = {$table->type->name}_relation_{$i}_$j.id");
+								$whereAppend .= " and {$table->type->name}_relation_{$i}_$j.deleted = :notdeleted";
 								$select[] = "{$table->type->name}_relation_{$i}_$j.{$relation->select_field} as {$table->type->name}_relation_{$i}_{$relation->select_field_as}";
 							}
 						}
@@ -403,12 +414,13 @@ class ReportDataset extends BaseActiveRecord
 			}
 		}
 
-		return $command->select(implode(',',$select))->where($where,$whereParams)->queryAll();
+		return $command->select(implode(',',$select))->where($where.$whereAppend,$whereParams)->queryAll();
 	}
 
 	public function compute_Patients($inputs) {
 		$select = array("p.id as patient_id, p.hos_num, c.first_name, c.last_name");
-		$where = '';
+		$where = 'p.deleted = :notdeleted and c.deleted = :notdeleted';
+		$whereParams = array(':notdeleted' => 0);
 
 		$command = Yii::app()->db_report->createCommand()
 			->from('patient p')
@@ -425,9 +437,13 @@ class ReportDataset extends BaseActiveRecord
 							if ($where) $where .= ' and ';
 							$where .= "{$table->type->name}_$i.{$table->table_query_field} = $inputItem";
 
+							$where .= " and {$table->type->name}_$i.deleted = :notdeleted";
+
 							foreach ($table->relations as $j => $relation) {
 								$command->join("{$relation->related_table} {$table->type->name}_relation_{$i}_$j","{$table->type->name}_$i.{$relation->local_field} = {$table->type->name}_relation_{$i}_$j.id");
 								$select[] = "{$table->type->name}_relation_{$i}_$j.{$relation->select_field} as {$table->type->name}_relation_{$i}_{$relation->select_field_as}";
+
+								$where .= " and {$table->type->name}_relation_{$i}_$j.deleted = :notdeleted";
 							}
 						}
 					}
@@ -437,7 +453,7 @@ class ReportDataset extends BaseActiveRecord
 
 		$results = array();
 
-		foreach ($command->select(implode(',',$select))->where($where)->queryAll() as $row) {
+		foreach ($command->select(implode(',',$select))->where($where, $whereParams)->queryAll() as $row) {
 			$dates = array();
 
 			foreach ($row as $key => $value) {
