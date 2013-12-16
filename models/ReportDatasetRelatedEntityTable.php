@@ -25,7 +25,7 @@
  * @property string $name
  *
  */
-class ReportDatasetRelatedEntityTable extends BaseActiveRecord
+class ReportDatasetRelatedEntityTable extends BaseActiveRecordVersioned
 {
 	/**
 	 * Returns the static model of the specified AR class.

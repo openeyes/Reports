@@ -25,7 +25,7 @@
  * @property string $name
  *
  */
-class ReportItemPairField extends BaseActiveRecord
+class ReportItemPairField extends BaseActiveRecordVersioned
 {
 	/**
 	 * Returns the static model of the specified AR class.

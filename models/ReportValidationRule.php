@@ -25,7 +25,7 @@
  * @property string $name
  *
  */
-class ReportValidationRule extends BaseActiveRecord
+class ReportValidationRule extends BaseActiveRecordVersioned
 {
 	/**
 	 * Returns the static model of the specified AR class.

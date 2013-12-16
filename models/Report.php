@@ -25,7 +25,7 @@
  * @property string $name
  *
  */
-class Report extends BaseActiveRecord
+class Report extends BaseActiveRecordVersioned
 {
 	/**
 	 * Returns the static model of the specified AR class.
