@@ -755,8 +755,8 @@ CREATE TABLE `report_version` (
 		$this->alterColumn('report_version','id','int(10) unsigned NOT NULL');
 		$this->dropPrimaryKey('id','report_version');
 
-		$this->createIndex('report_version_validation_rule_type_aid_fk','report','id');
-		$this->addForeignKey('report_version_validation_rule_type_aid_fk','report','id','report_validation_rule_type','id');
+		$this->createIndex('report_aid_fk','report_version','id');
+		$this->addForeignKey('report_aid_fk','report_version','id','report','id');
 
 		$this->addColumn('report_version','version_date',"datetime not null default '1900-01-01 00:00:00'");
 
