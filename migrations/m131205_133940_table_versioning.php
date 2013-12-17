@@ -741,28 +741,28 @@ CREATE TABLE `report_version` (
 	`created_user_id` int(10) unsigned NOT NULL DEFAULT '1',
 	`created_date` datetime NOT NULL DEFAULT '1900-01-01 00:00:00',
 	PRIMARY KEY (`id`),
-	KEY `report_last_modified_user_id_fk` (`last_modified_user_id`),
-	KEY `report_created_user_id_fk` (`created_user_id`),
-	KEY `report_subspecialty_id_fk` (`subspecialty_id`),
-	KEY `report_query_type_id_fk` (`query_type_id`),
-	CONSTRAINT `report_created_user_id_fk` FOREIGN KEY (`created_user_id`) REFERENCES `user` (`id`),
-	CONSTRAINT `report_last_modified_user_id_fk` FOREIGN KEY (`last_modified_user_id`) REFERENCES `user` (`id`),
-	CONSTRAINT `report_subspecialty_id_fk` FOREIGN KEY (`subspecialty_id`) REFERENCES `subspecialty` (`id`),
-	CONSTRAINT `report_query_type_id_fk` FOREIGN KEY (`query_type_id`) REFERENCES `report_query_type` (`id`)
+	KEY `report_version_last_modified_user_id_fk` (`last_modified_user_id`),
+	KEY `report_version_created_user_id_fk` (`created_user_id`),
+	KEY `report_version_subspecialty_id_fk` (`subspecialty_id`),
+	KEY `report_version_query_type_id_fk` (`query_type_id`),
+	CONSTRAINT `report_version_created_user_id_fk` FOREIGN KEY (`created_user_id`) REFERENCES `user` (`id`),
+	CONSTRAINT `report_version_last_modified_user_id_fk` FOREIGN KEY (`last_modified_user_id`) REFERENCES `user` (`id`),
+	CONSTRAINT `report_version_subspecialty_id_fk` FOREIGN KEY (`subspecialty_id`) REFERENCES `subspecialty` (`id`),
+	CONSTRAINT `report_version_query_type_id_fk` FOREIGN KEY (`query_type_id`) REFERENCES `report_query_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin
 ");
 
-		$this->alterColumn('report','id','int(10) unsigned NOT NULL');
-		$this->dropPrimaryKey('id','report');
+		$this->alterColumn('report_version','id','int(10) unsigned NOT NULL');
+		$this->dropPrimaryKey('id','report_version');
 
-		$this->createIndex('report_validation_rule_type_aid_fk','report','id');
-		$this->addForeignKey('report_validation_rule_type_aid_fk','report','id','report_validation_rule_type','id');
+		$this->createIndex('report_version_validation_rule_type_aid_fk','report','id');
+		$this->addForeignKey('report_version_validation_rule_type_aid_fk','report','id','report_validation_rule_type','id');
 
-		$this->addColumn('report','version_date',"datetime not null default '1900-01-01 00:00:00'");
+		$this->addColumn('report_version','version_date',"datetime not null default '1900-01-01 00:00:00'");
 
-		$this->addColumn('report','version_id','int(10) unsigned NOT NULL');
-		$this->addPrimaryKey('version_id','report','version_id');
-		$this->alterColumn('report','version_id','int(10) unsigned NOT NULL AUTO_INCREMENT');
+		$this->addColumn('report_version','version_id','int(10) unsigned NOT NULL');
+		$this->addPrimaryKey('version_id','report_version','version_id');
+		$this->alterColumn('report_version','version_id','int(10) unsigned NOT NULL AUTO_INCREMENT');
 
 		$this->addColumn('report_dataset','deleted','tinyint(1) unsigned not null');
 		$this->addColumn('report_dataset_version','deleted','tinyint(1) unsigned not null');
