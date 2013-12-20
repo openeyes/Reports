@@ -1,8 +1,8 @@
-<div class="report curvybox white">
+<div class="box admin">
 	<div class="reportInputs">
-		<h3 class="georgia"><?php echo $this->report->name?></h4>
+		<h2><?php echo $this->report->name?></h2>
 		<form id="reportData">
-			<table class="subtle white nodivider showrows valignmiddle">
+			<table class="blank">
 				<colgroup>
 					<col width="35%"></col>
 				</colgroup>

@@ -17,17 +17,20 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.html The GNU General Public License V3.0
  */
 ?>
-			<h2 class="reports">Reports</h2>
-			<div class="maxwidth nopadding curvybox blue clearfix">
-				<div class="wrap twocolumns clearfix">
-					<div class="leftcolumn narrow">
-						<?php $this->renderPartial('reports_sidebar')?>
-					</div>
-					<div class="rightcolumn wide">
-						<?php $this->renderPartial('_report')?>
-					</div>
-				</div>
-				<div class="colorband category_treatment"<?php if(!$this->title){ ?> style="display: none;"<?php } ?>></div>
-				<div id="display_actions_footer" class="display_actions footer"<?php if (!$this->title){?> style="display: none;"<?php }?>>
-				</div>
-			</div>
+
+<h1 class="badge admin">Reports</h1>
+
+<div class="box content admin-content">
+	<div class="row">
+		<aside class="large-3 column sidebar admin">
+			<?php $this->renderPartial('reports_sidebar')?>
+		</aside>
+		<div class="large-9 column">
+			<?php $this->renderPartial('_report')?>
+		</div>
+	</div>
+	<div class="row">
+		<div class="colorband category_treatment"<?php if(!$this->title){ ?> style="display: none;"<?php } ?>></div>
+		<div id="display_actions_footer" class="display_actions footer"<?php if (!$this->title){?> style="display: none;"<?php }?>></div>
+	</div>
+</div>
