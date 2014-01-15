@@ -50,7 +50,7 @@
 <?php if ($this->report->can_download) {?>
 	<button type="submit" class="classy blue mini" id="downloadReport" name="download"><span class="button-span button-span-blue">Download report</span></button>
 <?php }?>
-<img class="loader" style="display: none;" src="<?php echo Yii::app()->createUrl('img/ajax-loader.gif')?>" alt="loading..." />&nbsp;
+<img class="loader" style="display: none;" src="<?php echo Yii::app()->assetManager->createUrl('img/ajax-loader.gif')?>" alt="loading..." />&nbsp;
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#printReport').click(function() {

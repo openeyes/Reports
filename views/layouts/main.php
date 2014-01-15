@@ -34,16 +34,16 @@
 	<?php }?>
 	<link rel="icon" href="<?php echo Yii::app()->createUrl('favicon.ico')?>" type="image/x-icon" />
 	<link rel="shortcut icon" href="<?php echo Yii::app()->createUrl('favicon.ico')?>"/>
-	<?php Yii::app()->clientScript->registerCoreScript('jquery'); ?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/jui/js/jquery-ui.min.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/jquery.watermark.min.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('js/mustache.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/libs/modernizr-2.0.6.min.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/jquery.printElement.min.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/jquery.autosize-min.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/print.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/buttons.js'))?>
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/script.js'))?>
+	<?php Yii::app()->assetManager->registerCoreScript('jquery'); ?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/jui/js/jquery-ui.min.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/jquery.watermark.min.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/mustache.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/libs/modernizr-2.0.6.min.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/jquery.printElement.min.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/jquery.autosize-min.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/print.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/buttons.js')?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/script.js')?>
 	<?php if (Yii::app()->params['google_analytics_account']) {?>
 		<script type="text/javascript">
 
@@ -101,7 +101,7 @@
 
 	<?php echo $this->renderPartial('//base/_footer',array())?>
 
-	<?php Yii::app()->getClientScript()->registerScriptFile(Yii::app()->createUrl('/js/plugins.js'))?>
+	<?php Yii::app()->assetManager->registerScriptFile('js/plugins.js')?>
 
 	<?php if (Yii::app()->user->checkAccess('admin')) {?>
 		<div class="h1-watermark-admin"><?php echo Yii::app()->params['watermark_admin']?></div>
