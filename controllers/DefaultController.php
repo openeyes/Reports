@@ -6,9 +6,14 @@ class DefaultController extends BaseController {
 	public $report;
 	public $jsVars = array();
 
+	public function accessRules()
+	{
+		return array(array('allow', 'users' => array('@')));
+	}
+
 	protected function beforeAction($action) {
 		if ($action->id != 'download') {
-			$this->assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false, -1, YII_DEBUG);
+			$this->assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false);
 
 			Yii::app()->clientScript->registerCSSFile($this->assetPath.'/css/module.css');
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.js');
@@ -16,6 +21,10 @@ class DefaultController extends BaseController {
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/underscore.js');
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/oe_bulletgraph.js');
 			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/reports.js');
+		}
+
+		if (!Yii::app()->user->checkAccess('admin')) {
+			throw new Exception('Access denied');
 		}
 
 		return parent::beforeAction($action);
