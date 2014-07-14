@@ -24,19 +24,16 @@ class DefaultController extends BaseController {
 		);
 	}
 
-	protected function beforeAction($action) {
-		if ($action->id != 'download') {
-			$this->assetPath = Yii::app()->getAssetManager()->publish(Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false, -1);
-
-			Yii::app()->clientScript->registerCSSFile($this->assetPath.'/css/module.css');
-			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.js');
-			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/d3.chart.js');
-			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/underscore.js');
-			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/oe_bulletgraph.js');
-			Yii::app()->clientScript->registerScriptFile($this->assetPath.'/js/reports.js');
-		}
-
+	public function beforeAction($action) {
+		$this->assetPath = Yii::app()->getAssetManager()->publish(
+			Yii::getPathOfAlias('application.modules.'.$this->getModule()->name.'.assets'), false, -1
+		);
 		return parent::beforeAction($action);
+	}
+
+	protected function registerAssets()
+	{
+		Yii::app()->clientScript->registerPackage('reports');
 	}
 
 	public function selectDefaultReport() {
