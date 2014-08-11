@@ -1,6 +1,6 @@
 <div class="multiString">
 	<div class="stringInput">
-		<?php echo CHtml::textField($input->name.'[]',$input->default_value)?>
+		<?php echo CHtml::textField($input->name.'[]',$input->default_value,array('autocomplete'=>Yii::app()->params['html_autocomplete']))?>
 	</div>
 </div>
 <div class="multiStringAdd">
