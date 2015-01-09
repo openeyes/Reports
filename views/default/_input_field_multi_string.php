@@ -4,7 +4,5 @@
 	</div>
 </div>
 <div class="multiStringAdd">
-	<button class="addString classy green mini" type="button">
-		<span class="button-span button-span-green">Add</span>
-	</button>
+	<button class="small secondary" type="button">Add</button>
 </div>
